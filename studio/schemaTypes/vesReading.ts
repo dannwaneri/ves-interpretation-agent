@@ -7,7 +7,7 @@ export const vesReading = defineType({
   type: 'document',
   icon: BarChartIcon,
   description:
-    'One reported reading for one station, as stated in one specific place in a paper. A station can have more than one vesReading document when a paper reports the same station differently in different tables or figures — model each claim separately instead of merging them, so a genuine disagreement stays visible.',
+    'One reported reading for one station, as stated in one specific place in a paper. A station can have more than one vesReading document when a paper reports the same station differently in different tables or figures. Model each claim separately instead of merging them, so the disagreement stays visible.',
   fields: [
     defineField({
       name: 'station',
@@ -32,7 +32,7 @@ export const vesReading = defineType({
       name: 'sourceLocation',
       title: 'Where in the paper this reading comes from',
       type: 'string',
-      description: 'E.g. "Figure 2 panel (b) caption" or "p.7 summary table, row \'Kenpoly sec school field\'". Required for every reading — this is what lets two disagreeing readings for the same station stay traceable to exactly where each one came from.',
+      description: 'E.g. "Figure 2 panel (b) caption" or "p.7 summary table, row \'Kenpoly sec school field\'". Required for every reading. This is what lets two disagreeing readings for the same station stay traceable to exactly where each one came from.',
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -43,7 +43,7 @@ export const vesReading = defineType({
       name: 'curveTypePublished',
       title: 'Curve type as published',
       type: 'string',
-      description: 'The curve type label as printed in the paper (e.g. "A", "KH"), even if the underlying layer sequence does not strictly match that label. Do not correct it here — that correction is the agent\'s job at query time.',
+      description: 'The curve type label as printed in the paper (e.g. "A", "KH"), even if the underlying layer sequence does not strictly match that label. Do not correct it here. That correction is the agent\'s job at query time.',
     }),
     defineField({
       name: 'rmsPercent',

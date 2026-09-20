@@ -111,7 +111,7 @@ for (const st of choba.stations) {
     reportedAquiferDepthM: st.depths_m[st.depths_m.length - 1],
     reportedAquiferThicknessM: st.thicknesses_m[st.thicknesses_m.length - 1],
     transcriptionNote:
-      "Paper labels this an 'A-type' curve, but the layer sequence (91.2 -> 380.2 -> 43.25 -> 474.3 -> 597.1 ohm-m) dips at layer 3 -- not monotonically increasing. The paper's own Discussion text even states the trend as l1<l2>l3<l4<l5, contradicting its own 'A-type' label.",
+      "Paper labels this an 'A-type' curve, but the layer sequence (91.2 -> 380.2 -> 43.25 -> 474.3 -> 597.1 ohm-m) dips at layer 3, not monotonically increasing. The paper's own Discussion text even states the trend as l1<l2>l3<l4<l5, contradicting its own 'A-type' label.",
   })
 }
 
@@ -140,9 +140,9 @@ docs.push({
 
 const nonMonotonicNote = {
   Odufor:
-    "Paper labels this an 'A-type' curve, but the sequence (20.320 -> 851.16 -> 2511.9 -> 1345.0 ohm-m) dips at layer 4 -- not monotonically increasing.",
+    "Paper labels this an 'A-type' curve, but the sequence (20.320 -> 851.16 -> 2511.9 -> 1345.0 ohm-m) dips at layer 4, not monotonically increasing.",
   Opiro:
-    "Paper labels this an 'A-type' curve, but the sequence (54.639 -> 9147.8 -> 1119.9 -> 2566.8 ohm-m) dips at layer 3 -- not monotonically increasing.",
+    "Paper labels this an 'A-type' curve, but the sequence (54.639 -> 9147.8 -> 1119.9 -> 2566.8 ohm-m) dips at layer 3, not monotonically increasing.",
 }
 
 for (const st of etche.stations) {

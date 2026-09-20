@@ -25,14 +25,14 @@ async function readEntries(paths) {
 }
 
 async function synthesize(query, entriesText) {
-  const systemPrompt = `You are a VES interpretation assistant. Answer ONLY from the retrieved knowledge base entries given below -- never invent a number, station, or source that is not in them.
+  const systemPrompt = `You are a VES interpretation assistant. Answer ONLY from the retrieved knowledge base entries given below. Never invent a number, station, or source that is not in them.
 
-Write for a general audience with NO geology background -- a judge reading this has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
+Write for a general audience with NO geology background. Assume the reader has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
 Reply with ONLY a single JSON object (no markdown fences, no prose outside it), in exactly this shape:
 {
   "verdict": "normal" | "anomalous" | "uncertain",
-  "headline": "one short plain-English sentence stating the verdict and the single biggest reason why -- something a 10-year-old could follow",
+  "headline": "one short plain-English sentence stating the verdict and the single biggest reason why, something a 10-year-old could follow",
   "explanation": "1-2 more plain sentences of context, still jargon-free",
   "conflict": null OR {
     "plainSummary": "one plain sentence describing what's inconsistent in the source material itself",
@@ -65,7 +65,7 @@ function formatForCli(answer) {
   const badge = {normal: 'NORMAL', anomalous: 'ANOMALOUS', uncertain: 'UNCERTAIN'}[answer.verdict] || answer.verdict.toUpperCase()
   let out = `[${badge}] ${answer.headline}\n\n${answer.explanation}\n`
   if (answer.conflict) {
-    out += `\nSOURCE DISAGREEMENT FOUND:\n  ${answer.conflict.plainSummary}\n  Claim A: ${answer.conflict.claimA}\n  Claim B: ${answer.conflict.claimB}\n  Trusted: ${answer.conflict.trusted} -- ${answer.conflict.why}\n`
+    out += `\nSOURCE DISAGREEMENT FOUND:\n  ${answer.conflict.plainSummary}\n  Claim A: ${answer.conflict.claimA}\n  Claim B: ${answer.conflict.claimB}\n  Trusted: ${answer.conflict.trusted} (${answer.conflict.why})\n`
   }
   out += `\nSources:\n${answer.sources.map((s) => `  - ${s}`).join('\n')}\n`
   out += `\nNumbers:\n${answer.numbers.map((n) => `  - ${n.label}: ${n.value}`).join('\n')}\n`
