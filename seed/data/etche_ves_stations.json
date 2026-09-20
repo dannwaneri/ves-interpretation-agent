@@ -1,0 +1,75 @@
+{
+  "source": {
+    "citation": "Nwankwoala, H.O., Osayande, A.D., Nwosu, C.H., Ugwu, S.A. (2022). Groundwater exploration using vertical electrical sounding techniques in parts of Etche Local Government Area of Rivers State, Nigeria. Global Journal of Engineering and Technology Advances, 11(01), 088-100.",
+    "doi": "https://doi.org/10.30574/gjeta.2022.11.1.0070",
+    "license": "CC BY 4.0",
+    "note": "Values transcribed directly from the paper's Tables 1-8 (per-station IPI2/ID Interpex-inverted layer results) and Table 9 (curve type summary).",
+    "known_source_inconsistency": "Checked cumulative-depth arithmetic (depth[i] should equal depth[i-1] + thickness[i]) for every station. It holds for Opiro, Odufor, and layers 1-4 of Ndashi/Umuokom. It does NOT hold for: Egwi layer 4 depth (printed 37.25, arithmetic gives 44.25), Ulakwo layers 2-3 depths, Okehi layer 3 depth, Akpoku layer 2 depth, and the LAST layer's depth specifically for Ndashi and Umuokom (both off by roughly the same ~9-10m, suggesting a systematic issue in the source paper's table typesetting, not a one-off typo). Transcribed exactly as printed regardless - not silently corrected, since guessing at the 'right' number would be fabrication, not transcription."
+  },
+  "stations": [
+    {
+      "station_id": "Egwi",
+      "curve_type": "A",
+      "aquifer_lithology": "gravel",
+      "resistivities_ohm_m": [295.88, 798.60, 864.62, 1810.2, 5634.2],
+      "thicknesses_m": [0.54518, 3.5924, 2.1559, 37.957],
+      "depths_m": [0.54518, 4.1376, 6.2935, 37.25]
+    },
+    {
+      "station_id": "Ulakwo",
+      "curve_type": "A",
+      "aquifer_lithology": "gravel",
+      "resistivities_ohm_m": [14.369, 15.965, 4591.4, 5101.5],
+      "thicknesses_m": [0.124, 8.250, 27.074],
+      "depths_m": [0.12415, 9.665, 47.738]
+    },
+    {
+      "station_id": "Okehi",
+      "curve_type": "KH",
+      "aquifer_lithology": "gravel",
+      "resistivities_ohm_m": [697.56, 10642, 5533.0, 5776.1],
+      "thicknesses_m": [0.29506, 0.51943, 35.32],
+      "depths_m": [0.29506, 0.81449, 39.13]
+    },
+    {
+      "station_id": "Opiro",
+      "curve_type": "A",
+      "aquifer_lithology": "coarse sand",
+      "resistivities_ohm_m": [54.639, 9147.8, 1119.9, 2566.8],
+      "thicknesses_m": [0.21470, 0.30305, 21.107],
+      "depths_m": [0.21470, 0.51774, 21.625]
+    },
+    {
+      "station_id": "Odufor",
+      "curve_type": "A",
+      "aquifer_lithology": "medium sand",
+      "resistivities_ohm_m": [20.320, 851.16, 2511.9, 1345.0],
+      "thicknesses_m": [0.13606, 1.1039, 15.803],
+      "depths_m": [0.13606, 1.2399, 17.043]
+    },
+    {
+      "station_id": "Akpoku",
+      "curve_type": "KH",
+      "aquifer_lithology": "medium sand",
+      "resistivities_ohm_m": [790.38, 1854.8, 2133.7, 747.1, 1230.6, 2200.9],
+      "thicknesses_m": [0.36897, 0.8832, 3.7316, 28.838, 48.108],
+      "depths_m": [0.36897, 0.45729, 4.1889, 33.027, 81.135]
+    },
+    {
+      "station_id": "Ndashi",
+      "curve_type": "KH",
+      "aquifer_lithology": "coarse sand",
+      "resistivities_ohm_m": [13.515, 1257.2, 2041.3, 1765.4, 77.636, 2384.1],
+      "thicknesses_m": [0.49701, 1.5896, 4.5367, 17.594, 16.330],
+      "depths_m": [0.49701, 2.0866, 6.6232, 24.217, 30.850]
+    },
+    {
+      "station_id": "Umuokom",
+      "curve_type": "KH",
+      "aquifer_lithology": "medium sand",
+      "resistivities_ohm_m": [156.2, 421.4, 2559.4, 1032.0, 75.659, 1081.5],
+      "thicknesses_m": [0.60549, 0.33169, 4.3105, 30.476, 10.418],
+      "depths_m": [0.60549, 0.93718, 5.2477, 35.724, 36.766]
+    }
+  ]
+}

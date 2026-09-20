@@ -1,0 +1,13 @@
+{
+  "name": "ves-interpretation-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agent that queries a Sanity Context Knowledge Base of Niger Delta VES survey papers over MCP.",
+  "main": "index.js",
+  "scripts": {
+    "ask": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

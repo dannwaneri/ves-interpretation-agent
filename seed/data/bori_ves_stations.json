@@ -1,0 +1,156 @@
+{
+  "source": {
+    "citation": "Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024). Assessment of Aquifer Resistivity, Depth, and Thickness using Vertical Electrical Sounding (VES) in Parts of Bori Metropolis for Groundwater Exploration. World Journal of Advanced Research and Reviews, 24(02), 275-285.",
+    "doi": "https://doi.org/10.30574/wjarr.2024.24.2.3293",
+    "license": "CC BY 4.0",
+    "note": "Values below are transcribed directly from the paper's Figure 2 (a-m), which shows each station's IPI2Win-inverted layer table (N=layer index, rho=resistivity ohm-m, h=thickness m, d=cumulative depth m) and RMS misfit percent. This is the PAPER'S ALREADY-INVERTED output, not raw AB/2-vs-apparent-resistivity field readings - useful for validating curve classification and risk-flagging logic directly, NOT for validating our own inversion step (Task 2), since we don't have the raw field curve to re-invert.",
+    "known_source_inconsistency": "The paper contains two tables both labeled 'Table 1' (one on p.3 with coordinates, one on p.7 with resistivity/depth/thickness summary). For 'Kenpoly sec school field' and 'BMGS bori field' specifically, these two tables assign swapped values relative to each other and relative to the Figure 2 captions. Resolved here by treating the Figure 2 panel captions as authoritative (each panel explicitly states which site's curve it is) and pairing p.3's coordinates to the matching name - meaning the 'reported_aquifer_*' fields for these two stations were re-derived from their own Figure 2 panel data, not copied from the p.7 summary table row bearing that name. Other stations were spot-checked and did not show this discrepancy, but were not each individually re-verified line by line."
+  },
+  "stations": [
+    {
+      "station_id": "Kenpoly-convocation-arena",
+      "latitude": 4.667667, "longitude": 7.37414778,
+      "rms_percent": 1.26,
+      "resistivities_ohm_m": [1434, 1879, 318, 3488, 542],
+      "thicknesses_m": [2.5, 5.42, 18, 24.3],
+      "depths_m": [2.5, 7.92, 25.9, 50.2],
+      "reported_aquifer_resistivity_ohm_m": 3488,
+      "reported_aquifer_depth_m": 50.2,
+      "reported_aquifer_thickness_m": 24.3
+    },
+    {
+      "station_id": "Kenpoly-sec-school-field",
+      "latitude": 4.665453, "longitude": 7.37207889,
+      "rms_percent": 0.63,
+      "resistivities_ohm_m": [1874, 2428, 1071, 3706, 178],
+      "thicknesses_m": [2.78, 9.13, 15.2, 32.2],
+      "depths_m": [2.78, 11.9, 27.1, 59.3],
+      "reported_aquifer_resistivity_ohm_m": 3706,
+      "reported_aquifer_depth_m": 59.3,
+      "reported_aquifer_thickness_m": 32.2,
+      "note": "figure caption (b) says this site; p.7 summary table attaches these same numbers to 'BMGS bori field' instead - see known_source_inconsistency above"
+    },
+    {
+      "station_id": "BMGS-bori-field",
+      "latitude": 4.67842, "longitude": 7.36096,
+      "rms_percent": 0.49,
+      "resistivities_ohm_m": [1005, 3588, 1358, 333, 2950, 5469],
+      "thicknesses_m": [3.42, 6.33, 10.9, 9.08, 36.8],
+      "depths_m": [3.42, 9.76, 20.7, 29.7, 66.5],
+      "reported_aquifer_resistivity_ohm_m": 2950,
+      "reported_aquifer_depth_m": 66.5,
+      "reported_aquifer_thickness_m": 36.2,
+      "note": "figure caption (c) says this site; p.7 summary table attaches these same numbers to 'Kenpoly sec school field' instead - see known_source_inconsistency above"
+    },
+    {
+      "station_id": "Kor-road",
+      "latitude": 4.676532, "longitude": 7.379798,
+      "rms_percent": 3.12,
+      "resistivities_ohm_m": [1916, 1252, 1658, 581],
+      "thicknesses_m": [1.24, 1.79, 108],
+      "depths_m": [1.24, 3.03, 111],
+      "reported_aquifer_resistivity_ohm_m": 1658,
+      "reported_aquifer_depth_m": 111,
+      "reported_aquifer_thickness_m": 108
+    },
+    {
+      "station_id": "Bori-police-station",
+      "latitude": 4.672482, "longitude": 7.383455,
+      "rms_percent": 2.05,
+      "resistivities_ohm_m": [150, 97.1, 284, 700],
+      "thicknesses_m": [1.23, 6.21, 37.5],
+      "depths_m": [1.23, 7.44, 45],
+      "reported_aquifer_resistivity_ohm_m": 284,
+      "reported_aquifer_depth_m": 45,
+      "reported_aquifer_thickness_m": 37.5
+    },
+    {
+      "station_id": "Market-road",
+      "latitude": 4.677445, "longitude": 7.367565,
+      "rms_percent": 4.01,
+      "resistivities_ohm_m": [104, 186, 266, 327, 219],
+      "thicknesses_m": [2.86, 2.38, 24.7, 24.6],
+      "depths_m": [2.86, 5.24, 29.9, 54.6],
+      "reported_aquifer_resistivity_ohm_m": 327,
+      "reported_aquifer_depth_m": 54.6,
+      "reported_aquifer_thickness_m": 24.6
+    },
+    {
+      "station_id": "Court-road",
+      "latitude": 4.67591, "longitude": 7.375072,
+      "rms_percent": 3.48,
+      "resistivities_ohm_m": [16.8, 73.3, 701, 51.6, 99.8],
+      "thicknesses_m": [2.56, 10.4, 49.9, 51.4],
+      "depths_m": [2.56, 12.9, 62.9, 114],
+      "reported_aquifer_resistivity_ohm_m": 701,
+      "reported_aquifer_depth_m": 62.9,
+      "reported_aquifer_thickness_m": 49.9
+    },
+    {
+      "station_id": "Tigidam-street",
+      "latitude": 4.672565, "longitude": 7.372935,
+      "rms_percent": 5.13,
+      "resistivities_ohm_m": [1148, 2087, 808, 1896, 4854],
+      "thicknesses_m": [3.21, 11.9, 16.8, 68.5],
+      "depths_m": [3.21, 15.12, 32, 100],
+      "reported_aquifer_resistivity_ohm_m": 1896,
+      "reported_aquifer_depth_m": 100,
+      "reported_aquifer_thickness_m": 68.5
+    },
+    {
+      "station_id": "Monokpo-street",
+      "latitude": 4.66705, "longitude": 7.365495,
+      "rms_percent": 2.65,
+      "resistivities_ohm_m": [1426, 569, 1241, 1931, 2994],
+      "thicknesses_m": [2.2, 0.998, 23.2, 30.1],
+      "depths_m": [2.2, 3.2, 26.4, 56.5],
+      "reported_aquifer_resistivity_ohm_m": 1931,
+      "reported_aquifer_depth_m": 56.5,
+      "reported_aquifer_thickness_m": 30.1
+    },
+    {
+      "station_id": "Bank-road",
+      "latitude": 4.67171, "longitude": 7.36616,
+      "rms_percent": 2.11,
+      "resistivities_ohm_m": [640, 934, 2594, 4386],
+      "thicknesses_m": [5.21, 8.58, 84.1],
+      "depths_m": [5.21, 13.8, 97.9],
+      "reported_aquifer_resistivity_ohm_m": 2594,
+      "reported_aquifer_depth_m": 97.9,
+      "reported_aquifer_thickness_m": 84.1
+    },
+    {
+      "station_id": "Gokana-street",
+      "latitude": 4.673293, "longitude": 7.367968,
+      "rms_percent": 3.3,
+      "resistivities_ohm_m": [1420, 859, 987, 2246, 34337],
+      "thicknesses_m": [1.44, 1.49, 14.5, 33.5],
+      "depths_m": [1.44, 2.93, 17.4, 50.9],
+      "reported_aquifer_resistivity_ohm_m": 2246,
+      "reported_aquifer_depth_m": 50.9,
+      "reported_aquifer_thickness_m": 33.5
+    },
+    {
+      "station_id": "Maakoro-street",
+      "latitude": 4.665693, "longitude": 7.36597,
+      "rms_percent": 1.7,
+      "resistivities_ohm_m": [168, 484, 255, 1109, 807, 8895],
+      "thicknesses_m": [1.71, 7.45, 15.3, 25, 74.2],
+      "depths_m": [1.71, 9.16, 24.4, 49.4, 124],
+      "reported_aquifer_resistivity_ohm_m": 1109,
+      "reported_aquifer_depth_m": 49.4,
+      "reported_aquifer_thickness_m": 25
+    },
+    {
+      "station_id": "Kogam-street",
+      "latitude": 4.664385, "longitude": 7.36778,
+      "rms_percent": 2.82,
+      "resistivities_ohm_m": [127, 50.4, 126, 149, 197],
+      "thicknesses_m": [0.822, 5.63, 21.2, 29.7],
+      "depths_m": [0.822, 6.45, 27.7, 57.3],
+      "reported_aquifer_resistivity_ohm_m": 149,
+      "reported_aquifer_depth_m": 57.3,
+      "reported_aquifer_thickness_m": 29.7
+    }
+  ]
+}

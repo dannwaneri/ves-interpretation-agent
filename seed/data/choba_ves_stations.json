@@ -1,0 +1,20 @@
+{
+  "source": {
+    "citation": "Oghonyon, R., Nnurum, E.U., Oguejiofor, C.V. (2025). Evaluation of Resistivity Data for Delineating Potential Potable Water Accumulation Zone at Choba, Rivers State Nigeria. International Journal of Research and Scientific Innovation (IJRSI), XII(VII), 1525-1532.",
+    "doi": "https://doi.org/10.51244/IJRSI.2025.120700155",
+    "license": "Not explicitly marked CC in the PDF - attribute and link back to source; treat as read-and-cite, not redistribute-the-PDF.",
+    "site": "Lawn Tennis Field, University of Port Harcourt, Choba Town, Obio/Akpor LGA, Rivers State - same site/lithology sequence (topsoil, coarse sand, clay, gravel, conglomerate) our synthetic choba_synthetic.csv fixture was calibrated to, now with real numeric data instead of an invented table.",
+    "note": "Table 5 transcribed directly. Cumulative-depth arithmetic checked and reconciles cleanly for all 4 finite layers (unlike Bori/Etche, no inconsistency found here).",
+    "curve_type_note": "Paper's own text (Discussion) states the trend as ℓ1<ℓ2>ℓ3<ℓ4<ℓ5 - NOT monotonic (real dip at layer 3) - yet the paper still calls it an 'A-type curve' throughout. This is the THIRD confirmed instance (after Etche's Odufor and Opiro) of this research community using 'A-type' as a loose descriptor for 'broadly increasing with depth' rather than the strict monotonic definition. Our classifier correctly declines to assert a specific type here (5 layers, non-monotonic -> 'unclassified' per interpret_layers.py's calibrated rule) rather than parroting the paper's looser label."
+  },
+  "stations": [
+    {
+      "station_id": "Choba-LawnTennisField",
+      "curve_type_published": "A (loosely - see curve_type_note, real sequence is not monotonic)",
+      "aquifer_lithology": "gravel (layer 4) / conglomerate (layer 5, discontinuous)",
+      "resistivities_ohm_m": [91.2, 380.2, 43.25, 474.3, 597.1],
+      "thicknesses_m": [2.535, 15.83, 20.36, 33.05],
+      "depths_m": [2.535, 18.37, 38.73, 71.78]
+    }
+  ]
+}
