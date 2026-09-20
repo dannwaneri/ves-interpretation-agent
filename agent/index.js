@@ -27,14 +27,30 @@ async function readEntries(paths) {
 async function synthesize(query, entriesText) {
   const systemPrompt = `You are a VES interpretation assistant. Answer ONLY from the retrieved knowledge base entries given below -- never invent a number, station, or source that is not in them.
 
-Response shape, in this order:
-1. VERDICT -- one short plain-language sentence: normal / anomalous / uncertain, and why, in words a non-geologist can follow.
-2. SOURCES -- which paper(s), table(s), or figure(s) you drew on.
-3. NUMBERS -- the raw resistivity/depth/thickness values as receipts, for anyone who wants to check.
+Write for a general audience with NO geology background -- a judge reading this has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
-If the retrieved entries show two sources disagreeing on the same fact, state both values explicitly and say which one is trusted and why -- do not silently pick one and hide the conflict. If the entries don't contain enough to answer, say so plainly instead of guessing.`
+Reply with ONLY a single JSON object (no markdown fences, no prose outside it), in exactly this shape:
+{
+  "verdict": "normal" | "anomalous" | "uncertain",
+  "headline": "one short plain-English sentence stating the verdict and the single biggest reason why -- something a 10-year-old could follow",
+  "explanation": "1-2 more plain sentences of context, still jargon-free",
+  "conflict": null OR {
+    "plainSummary": "one plain sentence describing what's inconsistent in the source material itself",
+    "claimA": "short plain description of the first claim, with its value",
+    "claimB": "short plain description of the second, disagreeing claim, with its value",
+    "trusted": "which one is trusted",
+    "why": "one plain sentence on why that one is trusted"
+  },
+  "sources": ["short citation strings, e.g. 'Menegbo et al. (2024), Table 1, p.7'"],
+  "numbers": [{"label": "short label", "value": "value with unit"}]
+}
+
+Set "conflict" to null if the retrieved entries show no disagreement. If the entries don't contain enough to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing.`
   const userPrompt = `Retrieved knowledge base entries:\n${entriesText}\n\nQuestion: ${query}`
-  return gemini(systemPrompt, userPrompt)
+  const raw = await gemini(systemPrompt, userPrompt)
+  const match = raw.match(/\{[\s\S]*\}/)
+  if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
+  return JSON.parse(match[0])
 }
 
 async function ask(query) {
@@ -42,8 +58,18 @@ async function ask(query) {
   const paths = await selectPaths(query, outline)
   console.error(`[agent] selected entries: ${paths.join(', ')}`)
   const entriesText = await readEntries(paths)
-  const answer = await synthesize(query, entriesText)
-  return answer
+  return synthesize(query, entriesText)
+}
+
+function formatForCli(answer) {
+  const badge = {normal: 'NORMAL', anomalous: 'ANOMALOUS', uncertain: 'UNCERTAIN'}[answer.verdict] || answer.verdict.toUpperCase()
+  let out = `[${badge}] ${answer.headline}\n\n${answer.explanation}\n`
+  if (answer.conflict) {
+    out += `\nSOURCE DISAGREEMENT FOUND:\n  ${answer.conflict.plainSummary}\n  Claim A: ${answer.conflict.claimA}\n  Claim B: ${answer.conflict.claimB}\n  Trusted: ${answer.conflict.trusted} -- ${answer.conflict.why}\n`
+  }
+  out += `\nSources:\n${answer.sources.map((s) => `  - ${s}`).join('\n')}\n`
+  out += `\nNumbers:\n${answer.numbers.map((n) => `  - ${n.label}: ${n.value}`).join('\n')}\n`
+  return out
 }
 
 async function main() {
@@ -53,7 +79,7 @@ async function main() {
     process.exit(1)
   }
   const answer = await ask(query)
-  console.log('\n' + answer)
+  console.log('\n' + formatForCli(answer))
 }
 
 if (require.main === module) {
