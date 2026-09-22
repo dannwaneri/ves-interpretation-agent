@@ -25,7 +25,7 @@ See `seed/verified-corrections.js` for exactly how these were verified against t
 ```
 studio/     Sanity Studio: schema for surveyPaper / surveySite / vesReading
 seed/       Scripts that transcribe the real papers into structured Sanity documents
-agent/      The querying agent (Node, MCP client + Gemini for reasoning)
+agent/      The querying agent (Node, MCP client + Qwen for reasoning)
 ```
 
 ## Reproducing this
@@ -43,7 +43,7 @@ agent/      The querying agent (Node, MCP client + Gemini for reasoning)
 4. **Create an MCP endpoint** pointing at that Knowledge Base, and an org API token with **Context Viewer** permission (`Manage → API → Tokens`).
 5. **Run the agent**:
    ```bash
-   cp .env.example .env   # fill in your own token, KB id, MCP URL, Gemini key
+   cp .env.example .env   # fill in your own token, KB id, MCP URL, Qwen key
    node agent/index.js "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?"
    ```
 

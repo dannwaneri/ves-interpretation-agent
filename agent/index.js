@@ -1,5 +1,5 @@
 const {env, mcpCall} = require('./mcp.js')
-const {gemini} = require('./gemini.js')
+const {qwen} = require('./qwen.js')
 
 async function getOutline() {
   const res = await mcpCall('initial_context', {})
@@ -11,7 +11,7 @@ async function getOutline() {
 async function selectPaths(query, outline) {
   const systemPrompt = `You select which entries to read from a VES (Vertical Electrical Sounding) knowledge base outline, given a question. Reply with ONLY a JSON array of entry path strings (from the outline, exactly as written), most relevant first. Pick every entry that could plausibly bear on the question, including source-error / mislabeling entries when the question touches a specific station or site, since those often contain the real answer. Return at most 6 paths. No prose, no markdown, just the JSON array.`
   const userPrompt = `Outline:\n${outline}\n\nQuestion: ${query}\n\nJSON array of entry paths:`
-  const raw = await gemini(systemPrompt, userPrompt)
+  const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\[[\s\S]*\]/)
   if (!match) throw new Error(`Could not parse path selection from: ${raw}`)
   return JSON.parse(match[0])
@@ -36,18 +36,18 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
   "explanation": "1-2 more plain sentences of context, still jargon-free",
   "conflict": null OR {
     "plainSummary": "one plain sentence describing what's inconsistent in the source material itself",
-    "claimA": "short plain description of the first claim, with its value",
-    "claimB": "short plain description of the second, disagreeing claim, with its value",
-    "trusted": "which one is trusted",
+    "claimA": "short plain description of the first claim, ending in its exact value, e.g. 'p.7 summary table row labeled BMGS bori field says 3706 ohm-m'",
+    "claimB": "short plain description of the second claim, ending in its exact value -- claimA and claimB must state two DIFFERENT values, never the same number twice",
+    "trusted": "a plain-language restatement of which claim is correct and its value, e.g. 'the coordinate table and figure caption, which say 2950 ohm-m' -- never output the literal words 'claimA' or 'claimB' here",
     "why": "one plain sentence on why that one is trusted"
   },
   "sources": ["short citation strings, e.g. 'Menegbo et al. (2024), Table 1, p.7'"],
   "numbers": [{"label": "short label", "value": "value with unit"}]
 }
 
-Set "conflict" to null if the retrieved entries show no disagreement. If the entries don't contain enough to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing.`
+Set "conflict" to null if the retrieved entries show no disagreement. If the entries don't contain enough to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing. Before answering, double-check that claimA and claimB genuinely disagree (different values) -- if you can't find two different values, set "conflict" to null instead of fabricating a disagreement.`
   const userPrompt = `Retrieved knowledge base entries:\n${entriesText}\n\nQuestion: ${query}`
-  const raw = await gemini(systemPrompt, userPrompt)
+  const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
   return JSON.parse(match[0])
