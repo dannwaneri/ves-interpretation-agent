@@ -49,6 +49,29 @@ agent/      The querying agent (Node, MCP client + Qwen for reasoning)
 
 ## How the agent works
 
+```mermaid
+flowchart TD
+    subgraph Build["Knowledge Base build (offline, in Sanity)"]
+        A["3 VES survey papers"] --> B["Structured Sanity documents<br/>surveyPaper / surveySite / vesReading"]
+        B --> C["Sanity Context build"]
+        C --> D{"Same fact stated<br/>two different ways?"}
+        D -->|yes| E["Issue raised:<br/>claims shown side by side"]
+        E --> F["Resolved to an Instruction<br/>persists across rebuilds"]
+        D -->|no| G["Knowledge Base entries<br/>cited, structured"]
+        F --> G
+    end
+
+    subgraph Query["Agent query (runtime)"]
+        H["Question"] --> I["MCP: initial_context<br/>get KB outline"]
+        I --> J["LLM selects relevant<br/>entry paths"]
+        J --> K["MCP: knowledge_base_read<br/>fetch full entries"]
+        K --> L["LLM synthesizes:<br/>verdict, sources, numbers"]
+        L --> M["Structured answer<br/>grounded only in retrieved entries"]
+    end
+
+    G -. served over MCP .-> K
+```
+
 1. Calls the MCP endpoint's `initial_context` tool to get the Knowledge Base's outline (entry paths, summaries, relevance tags).
 2. Uses an LLM to pick which entries are relevant to the question (never invents an answer from the outline alone).
 3. Calls `knowledge_base_read` to fetch the full cited entries.
