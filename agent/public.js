@@ -10,6 +10,7 @@ const {qwen} = require('./qwen.js')
 const {resolveSiteFromCatalog, buildSiteQuery} = require('./groq.js')
 const {curveTypeChecks} = require('./curveType.js')
 const {tableSwapChecks} = require('./tableSwap.js')
+const {depthArithmeticChecks} = require('./depthArithmetic.js')
 const {enforceGrounding} = require('./grounding.js')
 
 const API_VERSION = 'v2024-01-01'
@@ -42,11 +43,12 @@ async function getPublicGroqData(question) {
   return {query, rows: rows || []}
 }
 
-async function publicSynthesize(query, groqRows, curveChecks, swapChecks) {
+async function publicSynthesize(query, groqRows, curveChecks, swapChecks, depthChecks) {
   const groqDataText = JSON.stringify(groqRows, null, 2)
   const curveChecksText = JSON.stringify(curveChecks, null, 2)
   const swapChecksText = JSON.stringify(swapChecks, null, 2)
-  const systemPrompt = `You are a VES interpretation assistant running in --public mode: no Knowledge Base access, only the raw GROQ DATA, CURVE TYPE CHECK, and TABLE SWAP CHECK blocks below, read from the dataset's public query API. Say so plainly if the question needs source-paper prose reasoning you don't have.
+  const depthChecksText = JSON.stringify(depthChecks, null, 2)
+  const systemPrompt = `You are a VES interpretation assistant running in --public mode: no Knowledge Base access, only the raw GROQ DATA, CURVE TYPE CHECK, TABLE SWAP CHECK, and DEPTH ARITHMETIC CHECK blocks below, read from the dataset's public query API. Say so plainly if the question needs source-paper prose reasoning you don't have.
 
 Numbers, layer values, and which station/site a reading belongs to come ONLY from the GROQ DATA block. Never invent or adjust a number, and never state a number that isn't present in that block.
 
@@ -55,6 +57,8 @@ TABLE SWAP CHECK is computed directly in code, not something you should re-deriv
 Do NOT build a "conflict" out of a different station's numbers, even one with a similar-sounding name. A conflict's claimA and claimB must both come from documents in the GROQ DATA block for the SAME station this question is about.
 
 CURVE TYPE CHECK is computed directly from the layer numbers in code. For any station where "matches" is false, the paper's own curveTypePublished label does not match its own layer values -- that is itself a source disagreement. Use "derived" as the trusted claim and "published" as the claim to distrust.
+
+DEPTH ARITHMETIC CHECK is computed directly in code. Each entry means that layer's printed depth and printed thickness do not reconcile with each other. There is no way to know which of the two printed numbers is the error, only that they disagree. Do NOT put this in the "conflict" object. Do NOT say "the depth is wrong," "the thickness is wrong," "too shallow," "too deep," or "should be X, but the paper says Y," since those imply a winner. In "explanation," state BOTH readings symmetrically using the check's own fields (impliedDepthIfThicknessCorrect and impliedThicknessIfDepthCorrect), and set verdict to "anomalous" because the printed data can't be fully trusted, not because either number is confirmed wrong.
 
 Write for a general audience with NO geology background. Explain any technical term (like "resistivity" or "ohm-m") in plain words the first time you use it.
 
@@ -75,7 +79,7 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
 }
 
 Set "conflict" to null if the GROQ data shows no disagreement. Every value in "numbers" must literally appear in the GROQ data below.`
-  const userPrompt = `GROQ DATA (from the public query API):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code):\n${curveChecksText}\n\nTABLE SWAP CHECK (computed in code):\n${swapChecksText}\n\nQuestion: ${query}`
+  const userPrompt = `GROQ DATA (from the public query API):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code):\n${curveChecksText}\n\nTABLE SWAP CHECK (computed in code):\n${swapChecksText}\n\nDEPTH ARITHMETIC CHECK (computed in code):\n${depthChecksText}\n\nQuestion: ${query}`
   const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
@@ -136,7 +140,8 @@ async function publicAsk(query) {
   const groqData = await getPublicGroqData(query)
   const curveChecks = curveTypeChecks(groqData.rows)
   const swapChecks = tableSwapChecks(groqData.rows)
-  const answer = await publicSynthesize(query, groqData.rows, curveChecks, swapChecks)
+  const depthChecks = depthArithmeticChecks(groqData.rows)
+  const answer = await publicSynthesize(query, groqData.rows, curveChecks, swapChecks, depthChecks)
   applyTableSwapOverride(answer, query, swapChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
   answer.groqQuery = groqData.query

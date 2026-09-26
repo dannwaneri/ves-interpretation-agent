@@ -2,6 +2,7 @@ const {env, mcpCall} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
 const groq = require('./groq.js')
 const {curveTypeChecks} = require('./curveType.js')
+const {depthArithmeticChecks} = require('./depthArithmetic.js')
 const {enforceGrounding} = require('./grounding.js')
 
 const KB_PATH_LIMIT = 20
@@ -117,9 +118,10 @@ async function getGroqData(question) {
   return {query, rows: rows || [], source}
 }
 
-async function synthesize(query, entriesText, groqRows, curveChecks) {
+async function synthesize(query, entriesText, groqRows, curveChecks, depthChecks) {
   const groqDataText = JSON.stringify(groqRows, null, 2)
   const curveChecksText = JSON.stringify(curveChecks, null, 2)
+  const depthChecksText = JSON.stringify(depthChecks, null, 2)
   const systemPrompt = `You are a VES interpretation assistant.
 
 Numbers, layer values, and which station/site a reading belongs to come ONLY from the GROQ DATA block below, read live from the dataset. Never invent or adjust a number, and never state a number that isn't present in that block.
@@ -131,6 +133,8 @@ If the GROQ data contains two vesReading documents for the same station with dif
 Do NOT build a "conflict" out of a different station's numbers, even one with a similar-sounding name (e.g. "Kenpoly Convocation Arena" is not "Kenpoly sec school field" -- they are different stations with different data, do not merge them). A conflict's claimA and claimB must both come from documents in the GROQ DATA block for the SAME station this question is about. If the GROQ data contains only one document for that station and the CURVE TYPE CHECK shows no mismatch, set "conflict" to null -- there is nothing to compare it against, however similar another station's documented issue might sound.
 
 CURVE TYPE CHECK block below is computed directly from the layer numbers in code, not read from prose and not something you should re-derive yourself. For any station where "matches" is false, the paper's own curveTypePublished label does not match what its own layer values actually do -- that is itself a source disagreement (a label contradicting its own data). Use "derived" as the trusted claim and "published" as the claim to distrust, and explain why using the specific layer where the trend breaks (read the resistivity values in order from the GROQ DATA block to name it, e.g. "the third layer drops instead of rising"). Only raise this as the "conflict" if the question is actually about that station's curve type.
+
+DEPTH ARITHMETIC CHECK block below is computed directly in code. Each entry means that layer's printed depth and printed thickness do not reconcile with each other (prior depth + thickness != printed depth). This is DIFFERENT from the curve-type and table-swap cases: there is no way to determine which of the two printed numbers is the error, only that they disagree. Do NOT put this in the "conflict" object (which requires naming a trusted claim). Do NOT say "the depth is wrong," "the thickness is wrong," "too shallow," "too deep," or use "should be X, but the paper says Y" phrasing, since all of those imply one number is trusted over the other. Instead, in "explanation," state BOTH readings symmetrically using the check's own fields: "if the printed thickness is right, the depth should be impliedDepthIfThicknessCorrect" AND "if the printed depth is right, the thickness should be impliedThicknessIfDepthCorrect" -- give both, not just one, and set verdict to "anomalous" because the printed data can't be fully trusted, not because you've concluded either number is definitely wrong.
 
 Do not generalize to "all stations" or "every reading at this site" unless you have personally checked every row in the GROQ DATA block and they all actually support that claim. A Knowledge Base entry titled something like "high resistivity stations" describes only the entries it contains, a curated subset, not the whole site -- treat its scope as narrow even if its prose reads as a general statement. If you're not certain a claim holds for every station, say it about the specific reading in question instead.
 
@@ -153,7 +157,7 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
 }
 
 Set "conflict" to null if the GROQ data shows no disagreement. If there isn't enough data to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing. Before answering, double-check that claimA and claimB genuinely disagree (different values) -- if you can't find two different values, set "conflict" to null instead of fabricating a disagreement. Every value in "numbers" must be a number that literally appears in the GROQ data below.`
-  const userPrompt = `GROQ DATA (from groq_query, live from the dataset):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code from the layer values above):\n${curveChecksText}\n\nKNOWLEDGE BASE ENTRIES (from knowledge_base_read):\n${entriesText}\n\nQuestion: ${query}`
+  const userPrompt = `GROQ DATA (from groq_query, live from the dataset):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code from the layer values above):\n${curveChecksText}\n\nDEPTH ARITHMETIC CHECK (computed in code from the layer values above):\n${depthChecksText}\n\nKNOWLEDGE BASE ENTRIES (from knowledge_base_read):\n${entriesText}\n\nQuestion: ${query}`
   const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
@@ -175,8 +179,15 @@ async function ask(query) {
     )
   }
 
+  const depthChecks = depthArithmeticChecks(groqData.rows)
+  if (depthChecks.length > 0) {
+    console.error(
+      `[agent] depth arithmetic inconsistency: ${depthChecks.map((d) => `${d.station} layer ${d.layerIndex}`).join(', ')}`
+    )
+  }
+
   const entriesText = await readEntries(paths)
-  const answer = await synthesize(query, entriesText, groqData.rows, curveChecks)
+  const answer = await synthesize(query, entriesText, groqData.rows, curveChecks, depthChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
 
   answer.groqQuery = groqData.query

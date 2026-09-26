@@ -42,11 +42,15 @@ test('Court-road (Bori): ordinary rounding noise must not be flagged', () => {
   assert.equal(checkDepthArithmetic(reading).matches, true)
 })
 
-// Real values for Egwi (Etche), read live via groq_query on 2026-09-26,
-// matching the Knowledge Base's documented depth-arithmetic inconsistency
-// (source_errors/data_inconsistencies): printed layer 4 cumulative depth is
-// 37.25 m, but 6.2935 + 37.957 = 44.2505 m.
-test('Egwi (Etche): layer 4 depth does not reconcile with its own thickness', () => {
+// Real values for Egwi (Etche), read live via groq_query on 2026-09-26.
+// Table 1 prints layer 4's cumulative depth as 37.25 m and thickness as
+// 37.957 m; 6.2935 + 37.957 = 44.2505 m, not 37.25 m. The paper's own
+// Figure 2 narrative text (eval/paper-text/etche.txt) independently repeats
+// both the ~37.95 m thickness and the 37.25 m depth, so this is a real,
+// repeated inconsistency in the published paper. It does NOT tell us which
+// of the two printed numbers is wrong -- the check must report both
+// possible readings, not pick one.
+test('Egwi (Etche): layer 4 printed depth and thickness do not reconcile', () => {
   const reading = {
     station: 'Egwi',
     layers: [
@@ -59,6 +63,8 @@ test('Egwi (Etche): layer 4 depth does not reconcile with its own thickness', ()
   const result = checkDepthArithmetic(reading)
   assert.equal(result.matches, false)
   assert.equal(result.layerIndex, 4)
-  assert.equal(result.printed, 37.25)
-  assert.equal(result.calculated, 44.2505)
+  assert.equal(result.printedCumulativeDepthM, 37.25)
+  assert.equal(result.printedThicknessM, 37.957)
+  assert.equal(result.impliedDepthIfThicknessCorrect, 44.2505)
+  assert.equal(result.impliedThicknessIfDepthCorrect, 30.9565)
 })

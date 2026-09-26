@@ -155,7 +155,7 @@ function ruleBasedAnswer(question, rows) {
       return {
         verdict: 'anomalous',
         station: row.station,
-        summary: `Layer ${depthCheck.layerIndex}'s printed cumulative depth (${depthCheck.printed} m) does not reconcile with the paper's own numbers: ${depthCheck.priorCumulativeDepthM} m (prior layer) + ${depthCheck.thicknessM} m (this layer's thickness) = ${depthCheck.calculated} m.`,
+        summary: `Layer ${depthCheck.layerIndex}'s printed depth (${depthCheck.printedCumulativeDepthM} m) and printed thickness (${depthCheck.printedThicknessM} m) do not reconcile with each other: prior depth ${depthCheck.priorCumulativeDepthM} m + printed thickness = ${depthCheck.impliedDepthIfThicknessCorrect} m, not the printed depth. This does not identify which of the two printed numbers is wrong, only that they disagree.`,
         source: citation(row),
         numbers: {
           resistivity: row.reportedAquiferResistivityOhmM,
