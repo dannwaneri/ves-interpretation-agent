@@ -42,7 +42,7 @@ words).
 - One entry says: **A-type** (as published)
 - Another entry says: **unclassified** (non-monotonic, not A-type)
 
-**Source / page:** Oghonyon et al. (2025), Table 5 (values) and Discussion/Conclusion sections (aquifer designation, curve label). Layer resistivities: 91.2 → 380.2 → 43.25 → 474.3 → 597.1 Ω·m -- confirmed non-monotonic (a dip at layer 3) by `agent/curveType.js`'s `deriveCurveType()`, which derives "KHA", not "A".
+**Source / page:** Oghonyon et al. (2025), Table 5 (values) and Discussion/Conclusion sections (aquifer designation, curve label). Layer resistivities: 91.2 → 380.2 → 43.25 → 474.3 → 597.1 Ω·m, confirmed non-monotonic (a dip at layer 3) by `agent/curveType.js`'s `deriveCurveType()`, which derives "KHA", not "A".
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
@@ -61,11 +61,11 @@ words).
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
-**Note:** #1 and #3 both describe the same real-world BMGS/Kenpoly swap -- Context raised it twice because three or more entries independently state the fact and it compares pairwise. When verifying against the PDF, one check covers both.
+**Note:** #1 and #3 both describe the same real-world BMGS/Kenpoly swap. Context raised it twice because three or more entries independently state the fact and it compares pairwise. When verifying against the PDF, one check covers both.
 
 ---
 
-## 4. Kenpoly Convocation Arena vs. Kenpoly sec school field -- ⚠ check this one carefully
+## 4. Kenpoly Convocation Arena vs. Kenpoly sec school field: ⚠ check this one carefully
 
 **Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
 
@@ -76,7 +76,7 @@ words).
 
 **Source / page:** Kenpoly-convocation-arena's own reading: 3488 Ω·m, Figure 2 panel caption. Kenpoly-sec-school-field's true value: 3706 Ω·m, its own Figure 2 panel caption.
 
-**⚠ Why this needs extra scrutiny:** "Kenpoly Convocation Arena" and "Kenpoly sec school field" are two genuinely **different, real stations** in the Bori dataset, each with its own uncontested reading (3488 and 3706 respectively) -- see `eval/questions.json`'s `bori-kenpoly-convocation-control` question, which the agent answers as a clean, no-conflict station. This Issue's own phrasing juxtaposes them as if they were competing claims about the same fact, purely because both station names contain "Kenpoly." That is exactly the same category of name-similarity confusion documented in `examples/bori-demo.md` and the Phase 4 commit history (the agent itself fabricated a conflict this way for Kenpoly Convocation Arena before being fixed). Worth checking whether this Issue is describing a real paper error, or whether it's Context (or the resolution) conflating two distinct stations the way the agent once did.
+**⚠ Why this needs extra scrutiny:** "Kenpoly Convocation Arena" and "Kenpoly sec school field" are two genuinely **different, real stations** in the Bori dataset, each with its own uncontested reading (3488 and 3706 respectively). See `eval/questions.json`'s `bori-kenpoly-convocation-control` question, which the agent answers as a clean, no-conflict station. This Issue's own phrasing juxtaposes them as if they were competing claims about the same fact, purely because both station names contain "Kenpoly." That is exactly the same category of name-similarity confusion documented in `examples/bori-demo.md` and the Phase 4 commit history (the agent itself fabricated a conflict this way for Kenpoly Convocation Arena before being fixed). Worth checking whether this Issue is describing a real paper error, or whether it's Context (or the resolution) conflating two distinct stations the way the agent once did.
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
@@ -88,11 +88,11 @@ words).
 
 > The full layer model section for Kor-road is correct, but it is duplicated identically for Kenpoly-convocation-arena, which should show a 5-layer model with aquifer at layer 4 (3488 Ω·m). The two stations have been conflated in the full layer models section.
 
-**What the entry said (Kor-road section):** Layer 1: 1.24 m @ 1916 Ω·m | Layer 2: 1.79 m @ 1252 Ω·m | Layer 3 (aquifer): 108 m @ 1658 Ω·m | Layer 4: 581 Ω·m (basement) -- correct.
+**What the entry said (Kor-road section):** Layer 1: 1.24 m @ 1916 Ω·m | Layer 2: 1.79 m @ 1252 Ω·m | Layer 3 (aquifer): 108 m @ 1658 Ω·m | Layer 4: 581 Ω·m (basement). Correct.
 
 **What the source says (`reading-bori-kor-road`):** Same model, confirmed correct.
 
-**Note:** This one is about the *KB entry's own generated text*, not a paper-transcription error -- Kor-road's numbers got copy-pasted under Kenpoly-convocation-arena's heading during entry generation. See #6, the same bug described from the other side.
+**Note:** This one is about the *KB entry's own generated text*, not a paper-transcription error. Kor-road's numbers got copy-pasted under Kenpoly-convocation-arena's heading during entry generation. See #6, the same bug described from the other side.
 
 **Resolution:** The entry is being updated, saved as an instruction for future rebuilds.
 
@@ -104,7 +104,7 @@ words).
 
 > The layer model listed for Kenpoly-convocation-arena in the entry does not match the source. The source shows layer 4 as the aquifer at 3488 Ω·m, not layer 3 at 1658 Ω·m. The listed model appears to belong to Kor-road instead.
 
-**What the entry said (Kenpoly-convocation-arena section, before fix):** Layer 1: 1.24 m @ 1916 Ω·m | Layer 2: 1.79 m @ 1252 Ω·m | Layer 3 (aquifer): 108 m @ 1658 Ω·m | Layer 4+: 581 Ω·m -- this is Kor-road's model, wrongly filed under Kenpoly.
+**What the entry said (Kenpoly-convocation-arena section, before fix):** Layer 1: 1.24 m @ 1916 Ω·m | Layer 2: 1.79 m @ 1252 Ω·m | Layer 3 (aquifer): 108 m @ 1658 Ω·m | Layer 4+: 581 Ω·m. This is Kor-road's model, wrongly filed under Kenpoly.
 
 **What the source says (`reading-bori-kenpoly-convocation-arena`):** Layer 1: 2.5 m @ 1434 Ω·m | Layer 2: 5.42 m @ 1879 Ω·m | Layer 3: 18 m @ 318 Ω·m | Layer 4 (aquifer): 24.3 m @ 3488 Ω·m | Layer 5 (basement): 542 Ω·m. Reported aquifer resistivity 3488 Ω·m at 50.2 m depth.
 
@@ -114,7 +114,7 @@ words).
 
 ---
 
-## 7. Eight Etche stations claim -- confirmed accurate, not a real conflict
+## 7. Eight Etche stations claim: confirmed accurate, not a real conflict
 
 **Scope:** Cross-Site Aquifer Resistivity Benchmarks entry | **Kind:** Conflict | **Severity:** (not critical)
 
@@ -126,7 +126,7 @@ words).
 
 **Source / page:** Nwankwoala et al. (2022), Etche LGA paper, Tables 1-8.
 
-**Note:** This is Context's own false-positive, flagged then confirmed accurate on review. No paper error to verify here -- just confirm the 8 names against the paper's own station list if you want a final sanity check.
+**Note:** This is Context's own false-positive, flagged then confirmed accurate on review. No paper error to verify here, just confirm the 8 names against the paper's own station list if you want a final sanity check.
 
 ---
 

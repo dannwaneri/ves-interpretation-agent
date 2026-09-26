@@ -5,9 +5,9 @@ walks through one question end to end: the actual MCP tool calls made, the
 actual GROQ query the model wrote, and the actual answer. The matching
 `*-raw.txt` file is the unedited stdout/stderr of running that exact command.
 
-- [bori-demo.md](bori-demo.md) -- the page-7 table swap
-- [choba-demo.md](choba-demo.md) -- the A-type curve mislabel
-- [eval-summary.md](eval-summary.md) -- pointer to the full Phase 4 eval (9
+- [bori-demo.md](bori-demo.md): the page-7 table swap
+- [choba-demo.md](choba-demo.md): the A-type curve mislabel
+- [eval-summary.md](eval-summary.md): pointer to the full Phase 4 eval (9
   questions x 3 reps x 2 conditions) and its scorecard
 
 Reproduce any of these yourself:

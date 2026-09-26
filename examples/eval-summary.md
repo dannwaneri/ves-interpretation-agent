@@ -1,6 +1,6 @@
 # Eval summary
 
-Full results: [../eval/](../eval/) -- raw run JSON in `eval/results/`, questions in `eval/questions.json`, scorecard in `eval/results/scorecard--2026-09-26.md`.
+Full results: [../eval/](../eval/). Raw run JSON in `eval/results/`, questions in `eval/questions.json`, scorecard in `eval/results/scorecard--2026-09-26.md`.
 
 9 questions, 3 reps per condition (54 runs total): structured agent vs. a
 plain BM25 keyword-search baseline over the raw text of the three source
@@ -10,7 +10,9 @@ PDFs, same model, comparable prompt, no structure.
 |---|---|---|
 | Verdict accuracy | 27/27 (100%) | 15/27 (56%) |
 | Conflict-detection accuracy | 27/27 (100%) | 23/27 (85%) |
-| Run-to-run consistency | Perfect on all 9 questions | -- |
+| Run-to-run consistency | Perfect on all 9 questions | N/A |
+
+**Not a held-out test.** Claude drafted these 9 questions; Daniel reviewed and approved them. The system was then iteratively fixed against the same questions during testing, so 27/27 shows the agent works on the cases it was built for, not that it generalizes. See the README's [Eval results](../README.md#eval-results) and [Limitations](../README.md#limitations) sections for the full account and what's being done about it (a genuinely held-out set, written independently).
 
 The clearest example of why structure matters: asked about the Kenpoly
 sec-school-field side of the same table swap, the keyword baseline actually
@@ -27,4 +29,4 @@ Two real bugs were found and fixed via this eval (see the Phase 4 commit and
 `eval/compare-offline.js` additionally checks `--offline` against the online
 agent on the same 9 questions: 8/9 agree exactly, and the one disagreement
 is a disclosed, inherent trade-off of a rule-based (no-LLM) mode rather than
-a bug -- see [../eval/results/offline-vs-online--2026-09-26.md](../eval/results/offline-vs-online--2026-09-26.md).
+a bug. See [../eval/results/offline-vs-online--2026-09-26.md](../eval/results/offline-vs-online--2026-09-26.md).

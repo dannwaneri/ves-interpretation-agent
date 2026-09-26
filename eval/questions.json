@@ -1,6 +1,6 @@
 {
   "_draft": false,
-  "_note": "Drafted by Claude on 2026-09-26, approved by Daniel, then run through Phase 4 eval (agent/qwen.js qwen-plus, 3 reps/condition, eval/results/). Every expectedVerdict/expectedKeyFacts entry is grounded in what the Knowledge Base entries (aquifer_benchmarks, survey_site_metadata, source_errors/*) and the dataset itself actually say -- none are guessed thresholds. The control questions (bori-court-road, choba-depth-consistency, bori-kenpoly-convocation) score on data-integrity (no fabricated conflict) rather than a geological threshold, since the Knowledge Base does not state a universal resistivity cutoff for 'normal' vs 'anomalous'.",
+  "_note": "Drafted by Claude on 2026-09-26, approved by Daniel, then run through Phase 4 eval (agent/qwen.js qwen-plus, 3 reps/condition, eval/results/). These 9 questions were known during development and are NOT a held-out test; the system was iteratively fixed against them (see agent/tableSwap.js's history). Every expectedVerdict/expectedKeyFacts entry is grounded in what the Knowledge Base entries (aquifer_benchmarks, survey_site_metadata, source_errors/*) and the dataset itself actually say, none are guessed thresholds. The control questions (bori-court-road, choba-depth-consistency, bori-kenpoly-convocation) score on data-integrity (no fabricated conflict) rather than a geological threshold, since the Knowledge Base does not state a universal resistivity cutoff for 'normal' vs 'anomalous'.",
   "_correctionLog": [
     "2026-09-26: etche-egwi-depth-arithmetic's expectedConflict changed from true to false. The eval run showed the agent correctly answering verdict=anomalous with a fully grounded explanation (6.2935 + 37.957 = 44.2505 m vs the paper's printed 37.25 m), but conflict=null every time. That's correct: the answer schema's 'conflict' field is for two claims disagreeing (a value swap, a curve-type label vs its own data); a single printed number not matching its own arithmetic is a different shape and belongs in 'explanation', not 'conflict'. The original expectedConflict:true was a mis-specification of this eval question, not an agent defect."
   ],
@@ -13,7 +13,7 @@
       "expectedSource": "Menegbo et al. (2024), Figure 2 caption / p.3 coordinate table",
       "expectedKeyFacts": [
         "2950 ohm-m matches Figure 2's own caption and the p.3 coordinate table for BMGS Bori Field",
-        "the p.7 summary table's 'BMGS bori field' row (3706 ohm-m) is mislabeled -- it actually belongs to Kenpoly sec school field",
+        "the p.7 summary table's 'BMGS bori field' row (3706 ohm-m) is mislabeled; it actually belongs to Kenpoly sec school field",
         "trusted value is 2950 ohm-m"
       ],
       "notes": "The existing demo question. Tests the table-swap conflict in the direction already covered in the README/submission."
@@ -81,7 +81,7 @@
         "layer 4 depth should equal the prior cumulative depth (6.2935 m) plus the layer 4 thickness (37.957 m), which is 44.25 m",
         "the printed value does not reconcile with the paper's own thickness values"
       ],
-      "notes": "A different KIND of source issue (depth arithmetic, not a value swap or a curve-type label) -- tests whether the agent's conflict detection generalizes past the two demo cases. This is a data-integrity question, not a resistivity-normalcy one, so 'anomalous' here means 'the printed number doesn't check out', not 'the aquifer is unusual'."
+      "notes": "A different KIND of source issue (depth arithmetic, not a value swap or a curve-type label): tests whether the agent's conflict detection generalizes past the two demo cases. This is a data-integrity question, not a resistivity-normalcy one, so 'anomalous' here means 'the printed number doesn't check out', not 'the aquifer is unusual'."
     },
     {
       "id": "bori-court-road-control",
@@ -93,7 +93,7 @@
         "701 ohm-m at Court-road comes from Figure 2's own caption",
         "no known label swap or arithmetic error affects this station"
       ],
-      "notes": "NEGATIVE CONTROL. No known issue touches this station. Grade this on whether the agent avoids fabricating a conflict, not on a specific resistivity threshold -- the Knowledge Base does not assert a universal 'normal' cutoff in ohm-m."
+      "notes": "NEGATIVE CONTROL. No known issue touches this station. Grade this on whether the agent avoids fabricating a conflict, not on a specific resistivity threshold; the Knowledge Base does not assert a universal 'normal' cutoff in ohm-m."
     },
     {
       "id": "choba-depth-consistency-control",

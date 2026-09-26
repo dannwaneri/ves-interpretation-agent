@@ -23,7 +23,7 @@ Full raw output: [choba-demo-raw.txt](choba-demo-raw.txt)
      "paperCitation": paper->citation
    }
    ```
-5. **Code-side check** (`curveTypeChecks`, `agent/curveType.js`): derives the curve type directly from the layer resistivities returned above -- `91.2 -> 380.2 -> 43.25 -> 474.3 -> 597.1` ohm-m -- and compares it against the paper's own `curveTypePublished: "A"`. This runs as a pure function on the retrieved numbers, not an LLM guess:
+5. **Code-side check** (`curveTypeChecks`, `agent/curveType.js`): derives the curve type directly from the layer resistivities returned above (`91.2 -> 380.2 -> 43.25 -> 474.3 -> 597.1` ohm-m) and compares it against the paper's own `curveTypePublished: "A"`. This runs as a pure function on the retrieved numbers, not an LLM guess:
    ```
    [agent] curve type mismatch: Choba-LawnTennisField published=A derived=KHA
    ```
@@ -50,7 +50,7 @@ Document ID cited: `reading-choba-choba-lawntennisfield`.
 node agent/index.js --offline "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?"
 ```
 
-No LLM call, no Knowledge Base call, no network at all -- loads `agent/offline-snapshot.ndjson` and runs the identical GROQ query text via `groq-js` locally, then applies the same `checkLabel()` rule used online:
+No LLM call, no Knowledge Base call, no network at all. Loads `agent/offline-snapshot.ndjson` and runs the identical GROQ query text via `groq-js` locally, then applies the same `checkLabel()` rule used online:
 
 ```
 [LABEL MISMATCH] Choba-LawnTennisField
