@@ -1,10 +1,13 @@
 const {env, mcpCall} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
+const groq = require('./groq.js')
 
-async function getOutline() {
-  const res = await mcpCall('initial_context', {})
+const KB_PATH_LIMIT = 20
+
+async function kbInitialContext() {
+  const res = await mcpCall(env.SANITY_MCP_URL, 'initial_context', {})
   const text = res.result?.content?.[0]?.text
-  if (!text) throw new Error(`initial_context returned no text: ${JSON.stringify(res)}`)
+  if (!text) throw new Error(`kb_initial_context returned no text: ${JSON.stringify(res)}`)
   return text
 }
 
@@ -18,14 +21,137 @@ async function selectPaths(query, outline) {
 }
 
 async function readEntries(paths) {
-  const res = await mcpCall('knowledge_base_read', {knowledgeBase: env.SANITY_KB_ID, paths})
+  if (paths.length > KB_PATH_LIMIT) {
+    throw new Error(`readEntries: ${paths.length} paths exceeds the ${KB_PATH_LIMIT}-path batch limit`)
+  }
+  const res = await mcpCall(env.SANITY_MCP_URL, 'knowledge_base_read', {
+    knowledgeBase: env.SANITY_KB_ID,
+    paths,
+  })
   const text = res.result?.content?.[0]?.text
   if (!text) throw new Error(`knowledge_base_read returned no text: ${JSON.stringify(res)}`)
   return text
 }
 
-async function synthesize(query, entriesText) {
-  const systemPrompt = `You are a VES interpretation assistant. Answer ONLY from the retrieved knowledge base entries given below. Never invent a number, station, or source that is not in them.
+function stripFences(raw) {
+  return raw
+    .trim()
+    .replace(/^```[a-zA-Z]*\n?/, '')
+    .replace(/```$/, '')
+    .trim()
+}
+
+async function writeGroqQuery(question, schemaOutline, catalog) {
+  const catalogText = catalog.map((r) => `- station "${r.station}" (site: "${r.siteName}")`).join('\n')
+  const systemPrompt = `You write ONE GROQ query for a Sanity dataset. Here is its schema:
+
+${schemaOutline}
+
+Rules:
+1. Use == for matching a site or station name, never match. Names contain spaces or are hyphenated, and match does not compare them reliably.
+2. Only compare against the exact literal strings given in the candidate list below. Do not reformat, guess casing, or invent a name.
+3. Match by site name (site->name == "..."), not by a single station, so the result includes every reading at that site. A verdict about whether one reading is normal needs the other readings at the same site for comparison. Match exactly ONE site, the one the question is actually about -- do not OR multiple sites together unless the question names more than one.
+4. Your projection must include at least: _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, "siteName": site->name, "paperId": paper._ref, "paperTitle": paper->title, "paperCitation": paper->citation.
+5. Do not add [0], first(), or any limit. Return every matching document.
+
+Reply with ONLY the raw GROQ query text. No markdown fences, no prose.`
+  const userPrompt = `Candidate stations and their sites:\n${catalogText}\n\nQuestion: ${question}\n\nGROQ query:`
+  const raw = await qwen(systemPrompt, userPrompt)
+  return stripFences(raw)
+}
+
+async function fixGroqQuery(brokenQuery, errorMessage) {
+  const systemPrompt = `You fix a broken GROQ query for a Sanity dataset. Use == (not match) for site/station names. Reply with ONLY the corrected GROQ query text, no markdown fences, no prose.`
+  const userPrompt = `Query: ${brokenQuery}\nError: ${errorMessage}\n\nCorrected GROQ query:`
+  const raw = await qwen(systemPrompt, userPrompt)
+  return stripFences(raw)
+}
+
+// Numbers only ever come from here: a live GROQ query against the dataset.
+// The model gets one shot at writing the query, one bounded retry if it
+// errors, and a deterministic code-built fallback if both attempts fail or
+// come back empty -- never an open-ended retry loop.
+async function getGroqData(question) {
+  const [schemaOutline, catalog] = await Promise.all([
+    groq.dataInitialContext(),
+    groq.listReadingCatalog(),
+  ])
+
+  let query = await writeGroqQuery(question, schemaOutline, catalog)
+  let source = 'model'
+  let rows
+
+  try {
+    ;({result: rows} = await groq.runGroqQuery(query))
+  } catch (e) {
+    console.error(`[agent] model-written GROQ query failed, retrying once: ${e.message}`)
+    try {
+      query = await fixGroqQuery(query, e.message)
+      ;({result: rows} = await groq.runGroqQuery(query))
+    } catch (e2) {
+      console.error(`[agent] retried GROQ query also failed, falling back to a code-built query: ${e2.message}`)
+      const siteName = groq.resolveSiteFromCatalog(question, catalog)
+      if (!siteName) {
+        throw new Error(
+          `Could not resolve a site from the question, and the model's GROQ query failed twice. Last error: ${e2.message}`
+        )
+      }
+      query = groq.buildSiteQuery(siteName)
+      source = 'fallback'
+      ;({result: rows} = await groq.runGroqQuery(query))
+    }
+  }
+
+  if (!rows || rows.length === 0) {
+    console.error('[agent] GROQ query returned zero rows, retrying with a code-built fallback query')
+    const siteName = groq.resolveSiteFromCatalog(question, catalog)
+    if (siteName) {
+      query = groq.buildSiteQuery(siteName)
+      source = 'fallback'
+      ;({result: rows} = await groq.runGroqQuery(query))
+    }
+  }
+
+  return {query, rows: rows || [], source}
+}
+
+function flattenKnownNumbers(rows) {
+  const known = new Set()
+  for (const r of rows) {
+    for (const key of ['reportedAquiferResistivityOhmM', 'reportedAquiferDepthM', 'reportedAquiferThicknessM', 'rmsPercent']) {
+      if (typeof r[key] === 'number') known.add(r[key])
+    }
+    for (const layer of r.layers || []) {
+      for (const key of ['resistivityOhmM', 'thicknessM', 'cumulativeDepthM', 'layerIndex']) {
+        if (typeof layer[key] === 'number') known.add(layer[key])
+      }
+    }
+  }
+  return known
+}
+
+// Rule enforcement in code, not just in the prompt: flag (don't block on)
+// any number in the answer that doesn't trace back to the GROQ data.
+function warnOnUngroundedNumbers(answer, rows) {
+  const known = flattenKnownNumbers(rows)
+  for (const n of answer.numbers || []) {
+    const match = String(n.value).match(/-?\d+(\.\d+)?/)
+    if (!match) continue
+    if (!known.has(parseFloat(match[0]))) {
+      console.error(`[agent] warning: numbers[] value "${n.value}" was not found in the GROQ data -- may not be grounded`)
+    }
+  }
+}
+
+async function synthesize(query, entriesText, groqRows) {
+  const groqDataText = JSON.stringify(groqRows, null, 2)
+  const systemPrompt = `You are a VES interpretation assistant.
+
+Numbers, layer values, and which station/site a reading belongs to come ONLY from the GROQ DATA block below, read live from the dataset. Never invent or adjust a number, and never state a number that isn't present in that block.
+
+Explanations, plain-language reasoning, and the "why" behind any source disagreement come ONLY from the KNOWLEDGE BASE ENTRIES block. Never invent a source or a conflict that isn't shown there.
+
+If the GROQ data contains two vesReading documents for the same station with different reportedAquiferResistivityOhmM values, that is the disagreement: describe it using each document's sourceLocation field to say where each value came from.
 
 Write for a general audience with NO geology background. Assume the reader has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
@@ -45,8 +171,8 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
   "numbers": [{"label": "short label", "value": "value with unit"}]
 }
 
-Set "conflict" to null if the retrieved entries show no disagreement. If the entries don't contain enough to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing. Before answering, double-check that claimA and claimB genuinely disagree (different values) -- if you can't find two different values, set "conflict" to null instead of fabricating a disagreement.`
-  const userPrompt = `Retrieved knowledge base entries:\n${entriesText}\n\nQuestion: ${query}`
+Set "conflict" to null if the GROQ data shows no disagreement. If there isn't enough data to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing. Before answering, double-check that claimA and claimB genuinely disagree (different values) -- if you can't find two different values, set "conflict" to null instead of fabricating a disagreement. Every value in "numbers" must be a number that literally appears in the GROQ data below.`
+  const userPrompt = `GROQ DATA (from groq_query, live from the dataset):\n${groqDataText}\n\nKNOWLEDGE BASE ENTRIES (from knowledge_base_read):\n${entriesText}\n\nQuestion: ${query}`
   const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
@@ -54,11 +180,19 @@ Set "conflict" to null if the retrieved entries show no disagreement. If the ent
 }
 
 async function ask(query) {
-  const outline = await getOutline()
-  const paths = await selectPaths(query, outline)
-  console.error(`[agent] selected entries: ${paths.join(', ')}`)
+  const [kbOutline, groqData] = await Promise.all([kbInitialContext(), getGroqData(query)])
+
+  const paths = await selectPaths(query, kbOutline)
+  console.error(`[agent] selected KB entries: ${paths.join(', ')}`)
+  console.error(`[agent] GROQ query (${groqData.source}): ${groqData.query}`)
+
   const entriesText = await readEntries(paths)
-  return synthesize(query, entriesText)
+  const answer = await synthesize(query, entriesText, groqData.rows)
+  warnOnUngroundedNumbers(answer, groqData.rows)
+
+  answer.groqQuery = groqData.query
+  answer.documentIds = groqData.rows.map((r) => r._id)
+  return answer
 }
 
 function formatForCli(answer) {
@@ -69,6 +203,8 @@ function formatForCli(answer) {
   }
   out += `\nSources:\n${answer.sources.map((s) => `  - ${s}`).join('\n')}\n`
   out += `\nNumbers:\n${answer.numbers.map((n) => `  - ${n.label}: ${n.value}`).join('\n')}\n`
+  out += `\nGROQ query run:\n  ${answer.groqQuery}\n`
+  out += `\nDocument IDs used:\n${answer.documentIds.map((id) => `  - ${id}`).join('\n')}\n`
   return out
 }
 

@@ -18,8 +18,8 @@ function loadEnv() {
 const env = loadEnv()
 
 let rpcId = 1
-async function mcpCall(toolName, args) {
-  const res = await fetch(env.SANITY_MCP_URL, {
+async function mcpCall(endpointUrl, toolName, args) {
+  const res = await fetch(endpointUrl, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.SANITY_CONTEXT_TOKEN}`,
