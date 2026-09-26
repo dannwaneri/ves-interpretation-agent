@@ -1,0 +1,28 @@
+[agent] selected KB entries: station_readings/bori/high_resistivity_stations, aquifer_benchmarks, source_errors/data_inconsistencies, source_errors/curve_type_mislabeling, survey_site_metadata, ves_interpretation/curve_types
+[agent] GROQ query (model): *[_type == "vesReading" && site->name == "Bori Metropolis" && station == "BMGS-bori-field"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, "siteName": site->name, "paperId": paper._ref, "paperTitle": paper->title, "paperCitation": paper->citation }
+
+[NORMAL] Yes, 2950 ohm-m is normal for BMGS Bori Field — it matches the trusted figure caption and fits the pattern of high-resistivity aquifers in Bori.
+
+Resistivity (measured in ohm-meters) tells us how strongly a layer resists electrical current — higher numbers often mean cleaner, sandier groundwater layers. In Bori Metropolis, nearly all surveyed sites have aquifer resistivities well above 1000 ohm-m, and 2950 ohm-m falls right in line with that expected range.
+
+SOURCE DISAGREEMENT FOUND:
+  Two different values are reported for the same station: 2950 ohm-m from the figure caption and 3706 ohm-m from the summary table.
+  Claim A: Figure 2 panel caption (IPI2Win-inverted layer table) says 2950 ohm-m
+  Claim B: p.7 Table 1 (summary table), row printed 'BMGS bori field' says 3706 ohm-m
+  Trusted: the figure caption and coordinate table, which say 2950 ohm-m (The paper's own coordinate table (p.3) and figure captions agree with each other and contradict the summary table labels — and the Knowledge Base confirms the table rows are swapped, so the 3706 value actually belongs to Kenpoly sec school field, not BMGS Bori Field)
+
+Sources:
+  - Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024), p.3 coordinate table and Figure 2 caption
+  - Menegbo et al. (2024), Table 1, p.7
+
+Numbers:
+  - reported aquifer resistivity: 2950 ohm-m
+  - alternative reported value (misattributed): 3706 ohm-m
+
+GROQ query run:
+  *[_type == "vesReading" && site->name == "Bori Metropolis" && station == "BMGS-bori-field"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, "siteName": site->name, "paperId": paper._ref, "paperTitle": paper->title, "paperCitation": paper->citation }
+
+Document IDs used:
+  - reading-bori-bmgs-bori-field
+  - reading-bori-bmgs-bori-field-p7table
+

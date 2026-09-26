@@ -1,5 +1,6 @@
 .env
 node_modules/
 *.ndjson
+!agent/offline-snapshot.ndjson
 eval/paper-text/
 eval/eval-run.log

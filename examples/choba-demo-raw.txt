@@ -1,0 +1,31 @@
+[agent] selected KB entries: source_errors/curve_type_mislabeling, station_readings/choba, ves_interpretation/curve_types
+[agent] GROQ query (model): *[_type == "vesReading" && site->name == "Lawn Tennis Field, University of Port Harcourt, Choba Town" && station == "Choba-LawnTennisField"] { _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, "siteName": site->name, "paperId": paper._ref, "paperTitle": paper->title, "paperCitation": paper->citation }
+[agent] curve type mismatch: Choba-LawnTennisField published=A derived=KHA
+
+[ANOMALOUS] No, it's not a true A-type curve because the resistivity drops sharply in the third layer instead of keeping steadily higher with depth.
+
+An A-type curve must show resistivity (a measure of how much the ground resists electric current, in ohm-meters) increasing at every step down — but here it jumps up, then crashes down, then climbs again. That dip breaks the strict rule for A-type.
+
+SOURCE DISAGREEMENT FOUND:
+  The paper labels the curve 'A-type' but its own layer data shows a non-monotonic sequence that contradicts that label.
+  Claim A: Oghonyon et al. (2025), Table 5 and throughout the text, labels the curve as A-type
+  Claim B: The same paper's Table 5 resistivity values (91.2 → 380.2 → 43.25 → 474.3 → 597.1 ohm-m) show a sharp drop at layer 3, making it non-A-type
+  Trusted: the paper's own resistivity values, which show layer 3 dropping to 43.25 ohm-m (The paper's Discussion section even explicitly describes the trend as ℓ₁ < ℓ₂ > ℓ₃ < ℓ₄ < ℓ₅ — admitting the dip — so the data itself overrides the label)
+
+Sources:
+  - Oghonyon, R., Nnurum, E.U., Oguejiofor, C.V. (2025). Evaluation of Resistivity Data for Delineating Potential Potable Water Accumulation Zone at Choba, Rivers State Nigeria. International Journal of Research and Scientific Innovation (IJRSI), XII(VII), 1525-1532.
+
+Numbers:
+  - Layer 1 resistivity: 91.2 ohm-m
+  - Layer 2 resistivity: 380.2 ohm-m
+  - Layer 3 resistivity: 43.25 ohm-m
+  - Layer 4 resistivity: 474.3 ohm-m
+  - Layer 5 resistivity: 597.1 ohm-m
+  - Reported aquifer resistivity: 474.3 ohm-m
+
+GROQ query run:
+  *[_type == "vesReading" && site->name == "Lawn Tennis Field, University of Port Harcourt, Choba Town" && station == "Choba-LawnTennisField"] { _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, "siteName": site->name, "paperId": paper._ref, "paperTitle": paper->title, "paperCitation": paper->citation }
+
+Document IDs used:
+  - reading-choba-choba-lawntennisfield
+

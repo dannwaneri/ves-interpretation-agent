@@ -1,7 +1,8 @@
 const {env, mcpCall} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
 const groq = require('./groq.js')
-const {checkLabel} = require('./curveType.js')
+const {curveTypeChecks} = require('./curveType.js')
+const {enforceGrounding} = require('./grounding.js')
 
 const KB_PATH_LIMIT = 20
 
@@ -116,82 +117,6 @@ async function getGroqData(question) {
   return {query, rows: rows || [], source}
 }
 
-function flattenKnownNumbers(rows) {
-  const known = new Set()
-  for (const r of rows) {
-    for (const key of ['reportedAquiferResistivityOhmM', 'reportedAquiferDepthM', 'reportedAquiferThicknessM', 'rmsPercent']) {
-      if (typeof r[key] === 'number') known.add(r[key])
-    }
-    for (const layer of r.layers || []) {
-      for (const key of ['resistivityOhmM', 'thicknessM', 'cumulativeDepthM', 'layerIndex']) {
-        if (typeof layer[key] === 'number') known.add(layer[key])
-      }
-    }
-  }
-  return known
-}
-
-// Only counts a number as a "claim" if it's attached to a measurement unit
-// (ohm-m, %, or a bare meter figure). Citation numbers like "Table 9" or a
-// publication year ("2022") are not data claims and must not trip the
-// grounding check just because they're digits.
-function numbersIn(text) {
-  const re = /(-?\d+(?:\.\d+)?)\s*(?:ohm-?m|ohm·m|Ω·m|%|m(?![a-zA-Z]))/gi
-  return [...String(text).matchAll(re)].map((m) => parseFloat(m[1]))
-}
-
-// Rule enforcement in code, not just in the prompt: the "numbers" list is
-// informational, so an ungrounded entry there only gets a warning. A
-// fabricated "conflict" is worse -- it tells the reader two real sources
-// disagree when they don't (see the Kenpoly Convocation Arena case found
-// during Phase 4 eval, where the model borrowed a different station's
-// documented swap value). So a conflict whose claims cite a number absent
-// from the GROQ data gets dropped in code, not just flagged.
-function enforceGrounding(answer, rows, curveChecks) {
-  const known = flattenKnownNumbers(rows)
-
-  for (const n of answer.numbers || []) {
-    for (const val of numbersIn(n.value)) {
-      if (!known.has(val)) {
-        console.error(`[agent] warning: numbers[] value "${n.value}" was not found in the GROQ data -- may not be grounded`)
-      }
-    }
-  }
-
-  if (answer.conflict) {
-    const claimNumbers = [
-      ...numbersIn(answer.conflict.claimA || ''),
-      ...numbersIn(answer.conflict.claimB || ''),
-      ...numbersIn(answer.conflict.trusted || ''),
-    ]
-    const ungrounded = claimNumbers.filter((v) => !known.has(v))
-    if (ungrounded.length > 0) {
-      console.error(
-        `[agent] dropping fabricated conflict: claim cites ${ungrounded.join(', ')}, not present in the GROQ data for this station`
-      )
-      answer.conflict = null
-      const hasGroundedMismatch = curveChecks.some((c) => c.matches === false)
-      if (answer.verdict === 'anomalous' && !hasGroundedMismatch) answer.verdict = 'uncertain'
-    }
-  }
-}
-
-// Curve type is a pure function of the layer numbers, not a judgment call,
-// so it's computed here in code rather than left for the model to eyeball
-// from a raw layers array. A mismatch against curveTypePublished is itself
-// a source disagreement: the label is a claim, the layers are the fact.
-function curveTypeChecks(rows) {
-  return rows
-    .filter((r) => Array.isArray(r.layers) && r.layers.length >= 3 && r.curveTypePublished)
-    .map((r) => {
-      try {
-        return checkLabel(r)
-      } catch (e) {
-        return {station: r.station, error: e.message}
-      }
-    })
-}
-
 async function synthesize(query, entriesText, groqRows, curveChecks) {
   const groqDataText = JSON.stringify(groqRows, null, 2)
   const curveChecksText = JSON.stringify(curveChecks, null, 2)
@@ -206,6 +131,8 @@ If the GROQ data contains two vesReading documents for the same station with dif
 Do NOT build a "conflict" out of a different station's numbers, even one with a similar-sounding name (e.g. "Kenpoly Convocation Arena" is not "Kenpoly sec school field" -- they are different stations with different data, do not merge them). A conflict's claimA and claimB must both come from documents in the GROQ DATA block for the SAME station this question is about. If the GROQ data contains only one document for that station and the CURVE TYPE CHECK shows no mismatch, set "conflict" to null -- there is nothing to compare it against, however similar another station's documented issue might sound.
 
 CURVE TYPE CHECK block below is computed directly from the layer numbers in code, not read from prose and not something you should re-derive yourself. For any station where "matches" is false, the paper's own curveTypePublished label does not match what its own layer values actually do -- that is itself a source disagreement (a label contradicting its own data). Use "derived" as the trusted claim and "published" as the claim to distrust, and explain why using the specific layer where the trend breaks (read the resistivity values in order from the GROQ DATA block to name it, e.g. "the third layer drops instead of rising"). Only raise this as the "conflict" if the question is actually about that station's curve type.
+
+Do not generalize to "all stations" or "every reading at this site" unless you have personally checked every row in the GROQ DATA block and they all actually support that claim. A Knowledge Base entry titled something like "high resistivity stations" describes only the entries it contains, a curated subset, not the whole site -- treat its scope as narrow even if its prose reads as a general statement. If you're not certain a claim holds for every station, say it about the specific reading in question instead.
 
 Write for a general audience with NO geology background. Assume the reader has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
@@ -271,11 +198,33 @@ function formatForCli(answer) {
 }
 
 async function main() {
-  const query = process.argv.slice(2).join(' ')
+  const args = process.argv.slice(2)
+  const offline = args.includes('--offline')
+  const isPublic = args.includes('--public')
+  const query = args.filter((a) => a !== '--offline' && a !== '--public').join(' ')
+
   if (!query) {
-    console.error('Usage: node agent/index.js "your question"')
+    console.error('Usage: node agent/index.js ["--offline" | "--public"] "your question"')
     process.exit(1)
   }
+  if (offline && isPublic) {
+    console.error('Pass only one of --offline or --public, not both.')
+    process.exit(1)
+  }
+
+  if (offline) {
+    const {offlineAsk, formatForCli: formatOffline} = require('./offline.js')
+    const answer = await offlineAsk(query)
+    console.log('\n' + formatOffline(answer))
+    return
+  }
+  if (isPublic) {
+    const {publicAsk} = require('./public.js')
+    const answer = await publicAsk(query)
+    console.log('\n' + formatForCli(answer))
+    return
+  }
+
   const answer = await ask(query)
   console.log('\n' + formatForCli(answer))
 }

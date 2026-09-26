@@ -60,4 +60,21 @@ function checkLabel(reading) {
   }
 }
 
-module.exports = {deriveCurveType, sortLayersByDepth, checkLabel}
+// Curve type is a pure function of the layer numbers, not a judgment call,
+// so it's computed here in code rather than left for the model (or a human
+// skimming a table) to eyeball from a raw layers array. A mismatch against
+// curveTypePublished is itself a source disagreement: the label is a claim,
+// the layers are the fact.
+function curveTypeChecks(rows) {
+  return rows
+    .filter((r) => Array.isArray(r.layers) && r.layers.length >= 3 && r.curveTypePublished)
+    .map((r) => {
+      try {
+        return checkLabel(r)
+      } catch (e) {
+        return {station: r.station, error: e.message}
+      }
+    })
+}
+
+module.exports = {deriveCurveType, sortLayersByDepth, checkLabel, curveTypeChecks}
