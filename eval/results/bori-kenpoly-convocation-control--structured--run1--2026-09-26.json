@@ -1,0 +1,41 @@
+{
+  "questionId": "bori-kenpoly-convocation-control",
+  "question": "I measured 3488 ohm-m at Kenpoly Convocation Arena, Bori. Does that check out against the source paper, and is there any known issue with it?",
+  "condition": "structured",
+  "run": 1,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, your measurement of 3488 ohm-m matches the source paper exactly.",
+    "explanation": "The paper reports the same value for the aquifer resistivity at Kenpoly Convocation Arena, and it comes from a high-quality survey with a very low error (1.26%). There's no internal conflict or known issue with this specific number.",
+    "conflict": null,
+    "sources": [
+      "Menegbo et al. (2024), Figure 2 panel caption (IPI2Win-inverted layer table), p.279"
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity",
+        "value": "3488 ohm-m"
+      },
+      {
+        "label": "aquifer depth",
+        "value": "50.2 m"
+      },
+      {
+        "label": "aquifer thickness",
+        "value": "24.3 m"
+      },
+      {
+        "label": "RMS error",
+        "value": "1.26%"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"Kenpoly-convocation-arena\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-kenpoly-convocation-arena"
+    ]
+  },
+  "durationMs": 10735
+}

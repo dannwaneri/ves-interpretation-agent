@@ -1,0 +1,55 @@
+{
+  "questionId": "choba-curve-type",
+  "question": "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?",
+  "condition": "structured",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No, it's not a true A-type curve because the resistivity drops sharply in the third layer instead of always going up.",
+    "explanation": "An A-type curve must show steadily increasing resistivity with depth at every step, like climbing stairs without ever stepping down — but here, after rising from 91.2 to 380.2 ohm-m, it crashes down to just 43.25 ohm-m in the third layer.",
+    "conflict": {
+      "plainSummary": "The paper labels the curve 'A-type', but its own layer data shows a sharp drop that violates the strict definition of A-type.",
+      "claimA": "the paper's published curveTypePublished label says 'A'",
+      "claimB": "the derived curve type from the actual layer resistivities is 'KHA'",
+      "trusted": "the derived curve type 'KHA', which reflects the real pattern: rise (K), then fall (H), then rise again (A)",
+      "why": "the resistivity sequence 91.2 → 380.2 → 43.25 → 474.3 → 597.1 has a clear peak at layer 2 and a dip at layer 3, matching the KHA pattern — and the paper's own Discussion section even describes it as ℓ₁ < ℓ₂ > ℓ₃ < ℓ₄ < ℓ₅, confirming the dip"
+    },
+    "sources": [
+      "Oghonyon, R., Nnurum, E.U., Oguejiofor, C.V. (2025). Evaluation of Resistivity Data for Delineating Potential Potable Water Accumulation Zone at Choba, Rivers State Nigeria. International Journal of Research and Scientific Innovation (IJRSI), XII(VII), 1525-1532."
+    ],
+    "numbers": [
+      {
+        "label": "Layer 1 resistivity",
+        "value": "91.2 ohm-m"
+      },
+      {
+        "label": "Layer 2 resistivity",
+        "value": "380.2 ohm-m"
+      },
+      {
+        "label": "Layer 3 resistivity",
+        "value": "43.25 ohm-m"
+      },
+      {
+        "label": "Layer 4 resistivity",
+        "value": "474.3 ohm-m"
+      },
+      {
+        "label": "Layer 5 resistivity",
+        "value": "597.1 ohm-m"
+      },
+      {
+        "label": "Reported aquifer resistivity",
+        "value": "474.3 ohm-m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Lawn Tennis Field, University of Port Harcourt, Choba Town\" && station == \"Choba-LawnTennisField\"] { _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-choba-choba-lawntennisfield"
+    ]
+  },
+  "durationMs": 17265
+}

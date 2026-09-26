@@ -1,0 +1,52 @@
+{
+  "questionId": "etche-odufor-curve-type",
+  "question": "Etche LGA's Odufor station is labeled an A-type curve in the paper. Does the layer data actually support that?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "uncertain",
+    "headline": "We cannot confirm whether Odufor station's layer data supports an A-type curve because the retrieved text never mentions Odufor station or its layer resistivity values.",
+    "explanation": "The text describes A-type and KH-type curves and lists which figures (e.g., figures 2, 3, 5, 6) are A-type, but it does not name the communities or stations linked to those figures — except for Umuokom and Akpoku, both tied to KH-type curves. No resistivity values, layer sequence, or curve type is given specifically for Odufor.",
+    "conflict": null,
+    "sources": [
+      "etche.txt"
+    ],
+    "numbers": [],
+    "retrievedChunks": [
+      {
+        "paper": "etche",
+        "chunkIndex": 42,
+        "score": 13.527
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 53,
+        "score": 11.982
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 19,
+        "score": 11.246
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 50,
+        "score": 10.609
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 49,
+        "score": 10.513
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 48,
+        "score": 9.913
+      }
+    ]
+  },
+  "durationMs": 3578
+}

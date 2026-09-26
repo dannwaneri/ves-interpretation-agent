@@ -1,0 +1,55 @@
+{
+  "questionId": "etche-opiro-curve-type",
+  "question": "Is Opiro's curve type in the Etche paper really A-type, given its layer values?",
+  "condition": "structured",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No, Opiro's curve is not truly A-type because its resistivity drops sharply partway down instead of steadily increasing.",
+    "explanation": "An A-type curve must show resistivity that goes up at every step with depth, like climbing stairs — but at Opiro, it jumps high then falls way down before rising again.",
+    "conflict": {
+      "plainSummary": "The paper labels Opiro's curve as 'A-type' but the actual layer resistivities show a large drop, making it incompatible with the strict definition of A-type.",
+      "claimA": "Table 9 of the Etche paper (Nwankwoala et al., 2022) publishes the curve type for Opiro as A",
+      "claimB": "The derived curve type from the layer resistivities (54.639 → 9147.8 → 1119.9 → 2566.8 ohm-m) is KH, because the third layer drops far below the second",
+      "trusted": "the derived KH classification, which matches the actual resistivity sequence",
+      "why": "The published 'A' label contradicts its own data: the third layer (1119.9 ohm-m) is much lower than the second (9147.8 ohm-m), breaking the required steady increase."
+    },
+    "sources": [
+      "Nwankwoala, H.O., Osayande, A.D., Nwosu, C.H., Ugwu, S.A. (2022). Groundwater exploration using vertical electrical sounding techniques in parts of Etche Local Government Area of Rivers State, Nigeria. Global Journal of Engineering and Technology Advances, 11(01), 088-100."
+    ],
+    "numbers": [
+      {
+        "label": "Layer 1 resistivity",
+        "value": "54.639 ohm-m"
+      },
+      {
+        "label": "Layer 2 resistivity",
+        "value": "9147.8 ohm-m"
+      },
+      {
+        "label": "Layer 3 resistivity",
+        "value": "1119.9 ohm-m"
+      },
+      {
+        "label": "Layer 4 resistivity",
+        "value": "2566.8 ohm-m"
+      },
+      {
+        "label": "Published curve type",
+        "value": "A"
+      },
+      {
+        "label": "Derived curve type",
+        "value": "KH"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Etche LGA survey stations\" && station == \"Opiro\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-etche-opiro"
+    ]
+  },
+  "durationMs": 15597
+}

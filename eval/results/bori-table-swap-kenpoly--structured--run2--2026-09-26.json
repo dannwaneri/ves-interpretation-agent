@@ -1,0 +1,40 @@
+{
+  "questionId": "bori-table-swap-kenpoly",
+  "question": "The paper's page-7 summary table lists Kenpoly sec school field's aquifer resistivity as 2950 ohm-m. Is that the right number for this station, or should I trust a different value?",
+  "condition": "structured",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "The paper's page-7 table says 2950 ohm-m, but that value actually belongs to a different station — BMGS bori field — not Kenpoly sec school field.",
+    "explanation": "The paper accidentally swapped the labels for two stations in its summary table: the row labeled 'Kenpoly sec school field' contains the numbers for BMGS bori field instead, and vice versa.",
+    "conflict": {
+      "plainSummary": "The paper gives two different aquifer resistivity values for Kenpoly sec school field: one in Figure 2 caption (3706 ohm-m) and another in the p.7 summary table (2950 ohm-m).",
+      "claimA": "Figure 2 panel caption (IPI2Win-inverted layer table) says Kenpoly sec school field has aquifer resistivity 3706 ohm-m",
+      "claimB": "p.7 Table 1 (summary table), row printed 'Kenpoly sec school field' says 2950 ohm-m",
+      "trusted": "the Figure 2 panel caption and coordinate table on p.3, which both say 3706 ohm-m",
+      "why": "The paper's own internal references — the coordinates on p.3 and the figure caption — agree with each other and point to 3706 ohm-m for Kenpoly sec school field, while contradicting the p.7 table label"
+    },
+    "sources": [
+      "Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024). Assessment of Aquifer Resistivity, Depth, and Thickness using Vertical Electrical Sounding (VES) in Parts of Bori Metropolis for Groundwater Exploration. World Journal of Advanced Research and Reviews, 24(02), 275-285."
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity from figure caption",
+        "value": "3706 ohm-m"
+      },
+      {
+        "label": "aquifer resistivity from p.7 table",
+        "value": "2950 ohm-m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"Kenpoly-sec-school-field\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-kenpoly-sec-school-field",
+      "reading-bori-kenpoly-sec-school-field-p7table"
+    ]
+  },
+  "durationMs": 15153
+}

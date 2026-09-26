@@ -1,0 +1,71 @@
+{
+  "questionId": "bori-table-swap-kenpoly",
+  "question": "The paper's page-7 summary table lists Kenpoly sec school field's aquifer resistivity as 2950 ohm-m. Is that the right number for this station, or should I trust a different value?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "uncertain",
+    "headline": "We cannot confirm if 2950 ohm-m is correct for Kenpoly sec school field because the source text gives conflicting latitude/longitude assignments that make it impossible to match the resistivity value to the right station.",
+    "explanation": "The table says 'Kenpoly sec school field' has resistivity 2950 ohm-m, but its listed coordinates (7.36096, 4.67842) are identical to those assigned to 'BMGS bori field' elsewhere in the same table — and 'BMGS bori field' is separately listed with a different resistivity (3706 ohm-m). This mix-up means we can’t be sure which station truly has which value.",
+    "conflict": {
+      "plainSummary": "The same coordinates are assigned to two different station names, each with a different resistivity value.",
+      "claimA": "Kenpoly sec school field is at latitude 7.36096 and longitude 4.67842, with aquifer resistivity 2950 ohm-m",
+      "claimB": "BMGS bori field is at latitude 7.36096 and longitude 4.67842, with aquifer resistivity 3706 ohm-m",
+      "trusted": "Neither value can be trusted because the coordinates are duplicated across two station names, making it impossible to resolve which resistivity belongs where.",
+      "why": "A single location cannot correspond to two different stations with two different resistivities — the table contains an internal error that breaks the link between name, location, and value."
+    },
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "Kenpoly sec school field resistivity",
+        "value": "2950 ohm-m"
+      },
+      {
+        "label": "BMGS bori field resistivity",
+        "value": "3706 ohm-m"
+      },
+      {
+        "label": "Shared coordinates",
+        "value": "latitude 7.36096, longitude 4.67842"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 31.445
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 26.233
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 13,
+        "score": 21.609
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 14,
+        "score": 19.453
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 24,
+        "score": 16.851
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 17,
+        "score": 14.982
+      }
+    ]
+  },
+  "durationMs": 9084
+}

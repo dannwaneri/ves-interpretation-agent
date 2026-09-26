@@ -1,0 +1,57 @@
+{
+  "questionId": "bori-kenpoly-convocation-control",
+  "question": "I measured 3488 ohm-m at Kenpoly Convocation Arena, Bori. Does that check out against the source paper, and is there any known issue with it?",
+  "condition": "baseline",
+  "run": 1,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, 3488 ohm-m at Kenpoly Convocation Arena matches the published value and shows no known issue.",
+    "explanation": "The paper explicitly lists 3488 ohm-m as the aquifer resistivity at that location, and this value falls within the typical range for sandy or gravelly aquifers (which conduct electricity moderately well), unlike very low values (e.g., under 100 ohm-m) that would suggest clay or contamination.",
+    "conflict": null,
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity at Kenpoly Convocation Arena",
+        "value": "3488 ohm-m"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 21.861
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 17.674
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 18,
+        "score": 15.514
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 14,
+        "score": 15.447
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 34,
+        "score": 12.746
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 17,
+        "score": 12.644
+      }
+    ]
+  },
+  "durationMs": 3727
+}

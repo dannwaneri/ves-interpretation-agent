@@ -1,0 +1,57 @@
+{
+  "questionId": "bori-kenpoly-convocation-control",
+  "question": "I measured 3488 ohm-m at Kenpoly Convocation Arena, Bori. Does that check out against the source paper, and is there any known issue with it?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, your measurement of 3488 ohm-m at Kenpoly Convocation Arena matches the published value exactly.",
+    "explanation": "The paper lists 'Kenpoly convocation arena field' with an aquifer resistivity of 3488 Ωm — that's the electrical resistance of the underground water-bearing layer, measured in ohm-meters (a standard unit for how strongly subsurface materials resist electric current). This value falls within the typical range for sandy or gravelly aquifers, which usually show high resistivity because water-filled pores let electricity flow more easily than clay.",
+    "conflict": null,
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity at Kenpoly Convocation Arena",
+        "value": "3488 Ωm"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 21.861
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 17.674
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 18,
+        "score": 15.514
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 14,
+        "score": 15.447
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 34,
+        "score": 12.746
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 17,
+        "score": 12.644
+      }
+    ]
+  },
+  "durationMs": 4192
+}

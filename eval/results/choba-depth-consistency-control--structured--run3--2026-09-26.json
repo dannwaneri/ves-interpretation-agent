@@ -1,0 +1,57 @@
+{
+  "questionId": "choba-depth-consistency-control",
+  "question": "Is there anything wrong with the depth arithmetic in the Choba Lawn Tennis Field readings?",
+  "condition": "structured",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "The depth arithmetic for Choba Lawn Tennis Field is correct — each layer's cumulative depth matches the sum of all previous thicknesses.",
+    "explanation": "The numbers add up cleanly: layer 1 ends at 2.535 m (its own thickness), layer 2 ends at 18.37 m (2.535 + 15.83), layer 3 ends at 38.73 m (18.37 + 20.36), and layer 4 ends at 71.78 m (38.73 + 33.05).",
+    "conflict": null,
+    "sources": [
+      "Oghonyon, R., Nnurum, E.U., Oguejiofor, C.V. (2025). Evaluation of Resistivity Data for Delineating Potential Potable Water Accumulation Zone at Choba, Rivers State Nigeria. International Journal of Research and Scientific Innovation (IJRSI), XII(VII), 1525-1532."
+    ],
+    "numbers": [
+      {
+        "label": "Layer 1 cumulative depth",
+        "value": "2.535 m"
+      },
+      {
+        "label": "Layer 2 cumulative depth",
+        "value": "18.37 m"
+      },
+      {
+        "label": "Layer 3 cumulative depth",
+        "value": "38.73 m"
+      },
+      {
+        "label": "Layer 4 cumulative depth",
+        "value": "71.78 m"
+      },
+      {
+        "label": "Layer 1 thickness",
+        "value": "2.535 m"
+      },
+      {
+        "label": "Layer 2 thickness",
+        "value": "15.83 m"
+      },
+      {
+        "label": "Layer 3 thickness",
+        "value": "20.36 m"
+      },
+      {
+        "label": "Layer 4 thickness",
+        "value": "33.05 m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Lawn Tennis Field, University of Port Harcourt, Choba Town\"] { _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-choba-choba-lawntennisfield"
+    ]
+  },
+  "durationMs": 13517
+}

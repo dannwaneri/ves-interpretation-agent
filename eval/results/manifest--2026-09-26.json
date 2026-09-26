@@ -1,0 +1,380 @@
+[
+  {
+    "file": "bori-table-swap-bmgs--structured--run1--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-bmgs--structured--run2--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-bmgs--structured--run3--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-bmgs--baseline--run1--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-bmgs--baseline--run2--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-bmgs--baseline--run3--2026-09-26.json",
+    "questionId": "bori-table-swap-bmgs",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--structured--run1--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--structured--run2--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--structured--run3--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--baseline--run1--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--baseline--run2--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-table-swap-kenpoly--baseline--run3--2026-09-26.json",
+    "questionId": "bori-table-swap-kenpoly",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--structured--run1--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--structured--run2--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--structured--run3--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--baseline--run1--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--baseline--run2--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "choba-curve-type--baseline--run3--2026-09-26.json",
+    "questionId": "choba-curve-type",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--structured--run1--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--structured--run2--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--structured--run3--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--baseline--run1--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--baseline--run2--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-odufor-curve-type--baseline--run3--2026-09-26.json",
+    "questionId": "etche-odufor-curve-type",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--structured--run1--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--structured--run2--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--structured--run3--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--baseline--run1--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--baseline--run2--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-opiro-curve-type--baseline--run3--2026-09-26.json",
+    "questionId": "etche-opiro-curve-type",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--structured--run1--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--structured--run2--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--structured--run3--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--baseline--run1--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--baseline--run2--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "etche-egwi-depth-arithmetic--baseline--run3--2026-09-26.json",
+    "questionId": "etche-egwi-depth-arithmetic",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--structured--run1--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--structured--run2--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--structured--run3--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--baseline--run1--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--baseline--run2--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-court-road-control--baseline--run3--2026-09-26.json",
+    "questionId": "bori-court-road-control",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--structured--run1--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--structured--run2--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--structured--run3--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--baseline--run1--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--baseline--run2--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "choba-depth-consistency-control--baseline--run3--2026-09-26.json",
+    "questionId": "choba-depth-consistency-control",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--structured--run1--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "structured",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--structured--run2--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "structured",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--structured--run3--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "structured",
+    "run": 3,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--baseline--run1--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "baseline",
+    "run": 1,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--baseline--run2--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "baseline",
+    "run": 2,
+    "ok": true
+  },
+  {
+    "file": "bori-kenpoly-convocation-control--baseline--run3--2026-09-26.json",
+    "questionId": "bori-kenpoly-convocation-control",
+    "condition": "baseline",
+    "run": 3,
+    "ok": true
+  }
+]

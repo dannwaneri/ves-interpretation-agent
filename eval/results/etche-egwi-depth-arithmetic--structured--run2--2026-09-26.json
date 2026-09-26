@@ -1,0 +1,41 @@
+{
+  "questionId": "etche-egwi-depth-arithmetic",
+  "question": "Does Egwi station's reported layer depth in the Etche paper add up correctly?",
+  "condition": "structured",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No, the reported layer depths for Egwi don't add up — the fourth layer's printed depth is wrong by about 7 meters.",
+    "explanation": "The paper says the third layer ends at 6.2935 m deep, and the fourth layer is 37.957 m thick, so it should end around 44.25 m — but the paper prints 37.25 m instead.",
+    "conflict": null,
+    "sources": [
+      "Nwankwoala, H.O., Osayande, A.D., Nwosu, C.H., Ugwu, S.A. (2022). Groundwater exploration using vertical electrical sounding techniques in parts of Etche Local Government Area of Rivers State, Nigeria. Global Journal of Engineering and Technology Advances, 11(01), 088-100."
+    ],
+    "numbers": [
+      {
+        "label": "third layer cumulative depth",
+        "value": "6.2935 m"
+      },
+      {
+        "label": "fourth layer thickness",
+        "value": "37.957 m"
+      },
+      {
+        "label": "printed fourth layer cumulative depth",
+        "value": "37.25 m"
+      },
+      {
+        "label": "calculated fourth layer cumulative depth",
+        "value": "44.2505 m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Etche LGA survey stations\" && station == \"Egwi\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-etche-egwi"
+    ]
+  },
+  "durationMs": 11469
+}

@@ -1,0 +1,69 @@
+{
+  "questionId": "choba-curve-type",
+  "question": "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No — the paper contradicts itself by calling the curve both A-type and describing a resistivity trend that matches a different curve type.",
+    "explanation": "An A-type curve means resistivity steadily increases with depth (ρ1 < ρ2 < ρ3 < ρ4 < ρ5), but one chunk explicitly states the trend is ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 — which has a drop between layer 2 and 3, breaking the steady increase.",
+    "conflict": {
+      "plainSummary": "The paper gives two incompatible descriptions of the same resistivity trend: one says it's an A-type curve (steady increase), the other gives a specific sequence that includes a decrease.",
+      "claimA": "The curve is an A-type curve, defined by progressive increase in resistivity with depth.",
+      "claimB": "The resistivity trend is ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5.",
+      "trusted": "The trend ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 is correct and describes a KH-type or similar non-A-type curve.",
+      "why": "The ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 sequence is a precise, quantitative description of measured values, while 'A-type' is a qualitative label applied inconsistently — and the same paper elsewhere notes undulating curves (like KH-type) in nearby areas, suggesting mislabeling."
+    },
+    "sources": [
+      "choba.txt (chunk 2)",
+      "choba.txt (chunk 5)",
+      "etche.txt (chunk 6)"
+    ],
+    "numbers": [
+      {
+        "label": "resistivity trend",
+        "value": "ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5"
+      },
+      {
+        "label": "curve type claimed",
+        "value": "A-type"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "choba",
+        "chunkIndex": 24,
+        "score": 12.334
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 1,
+        "score": 11.647
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 33,
+        "score": 11.523
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 7,
+        "score": 11.29
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 27,
+        "score": 11.25
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 42,
+        "score": 10.729
+      }
+    ]
+  },
+  "durationMs": 8422
+}

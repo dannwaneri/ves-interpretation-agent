@@ -63,6 +63,30 @@ test('Choba Lawn Tennis Field: published A, but the numbers say otherwise', () =
   assert.equal(matches, false)
 })
 
+// Real layer values for Egwi (Etche) read live via groq_query on
+// 2026-09-26 (*[_type=="vesReading" && station=="Egwi"]{station,
+// curveTypePublished,"r":layers[].resistivityOhmM}). Found via the Phase 4
+// eval run: 5 layers, strictly increasing throughout, so deriveCurveType
+// returns "AAA" (one letter per 3-layer window). That's a genuinely
+// single-type curve correctly labeled "A" -- checkLabel must collapse the
+// repeated letter and match, not flag every >3-layer A-type as a mismatch.
+test('Egwi (Etche): published A, genuinely monotonic -- must NOT flag as a mismatch', () => {
+  const reading = {
+    station: 'Egwi',
+    curveTypePublished: 'A',
+    layers: [
+      {layerIndex: 1, resistivityOhmM: 295.88},
+      {layerIndex: 2, resistivityOhmM: 798.6},
+      {layerIndex: 3, resistivityOhmM: 864.62},
+      {layerIndex: 4, resistivityOhmM: 1810.2},
+      {layerIndex: 5, resistivityOhmM: 5634.2},
+    ],
+  }
+  const {derived, matches} = checkLabel(reading)
+  assert.equal(derived, 'AAA')
+  assert.equal(matches, true)
+})
+
 test('Odufor (Etche): published A, but the numbers say otherwise', () => {
   const reading = {
     station: 'Odufor',

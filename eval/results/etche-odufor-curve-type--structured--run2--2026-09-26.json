@@ -1,0 +1,55 @@
+{
+  "questionId": "etche-odufor-curve-type",
+  "question": "Etche LGA's Odufor station is labeled an A-type curve in the paper. Does the layer data actually support that?",
+  "condition": "structured",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "The Odufor station is labeled A-type but its resistivity drops at the deepest layer, breaking the strict rule for A-type curves.",
+    "explanation": "An A-type curve must show resistivity increasing steadily with depth at every step, but here it rises from 20 to 851 to 2512 ohm-m, then falls to 1345 ohm-m — like climbing stairs and then stepping down.",
+    "conflict": {
+      "plainSummary": "The paper labels the curve A-type, but the actual resistivity values show a drop at the last layer, making it non-monotonic.",
+      "claimA": "Table 9 of the paper labels Odufor as A-type",
+      "claimB": "The layer resistivities (20.32 → 851.16 → 2511.9 → 1345.0 ohm-m) show a drop from layer 3 to layer 4, so the derived curve type is AK",
+      "trusted": "the derived curve type AK, based on the actual resistivity sequence",
+      "why": "A-type requires resistivity to increase at every layer boundary without exception, but layer 4 (1345 ohm-m) is lower than layer 3 (2511.9 ohm-m), so it cannot be A-type"
+    },
+    "sources": [
+      "Nwankwoala, H.O., Osayande, A.D., Nwosu, C.H., Ugwu, S.A. (2022). Groundwater exploration using vertical electrical sounding techniques in parts of Etche Local Government Area of Rivers State, Nigeria. Global Journal of Engineering and Technology Advances, 11(01), 088-100."
+    ],
+    "numbers": [
+      {
+        "label": "Layer 1 resistivity",
+        "value": "20.32 ohm-m"
+      },
+      {
+        "label": "Layer 2 resistivity",
+        "value": "851.16 ohm-m"
+      },
+      {
+        "label": "Layer 3 resistivity",
+        "value": "2511.9 ohm-m"
+      },
+      {
+        "label": "Layer 4 resistivity",
+        "value": "1345 ohm-m"
+      },
+      {
+        "label": "Reported aquifer resistivity",
+        "value": "1345 ohm-m"
+      },
+      {
+        "label": "Reported aquifer depth",
+        "value": "17.043 m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Etche LGA survey stations\" && station == \"Odufor\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-etche-odufor"
+    ]
+  },
+  "durationMs": 15905
+}

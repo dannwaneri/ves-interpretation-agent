@@ -1,3 +1,5 @@
 .env
 node_modules/
 *.ndjson
+eval/paper-text/
+eval/eval-run.log

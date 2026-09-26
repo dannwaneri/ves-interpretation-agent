@@ -35,6 +35,16 @@ function sortLayersByDepth(layers) {
   })
 }
 
+// A curve with N>3 layers that is genuinely one consistent type all the way
+// down derives as that letter repeated (e.g. "AAA" for 5 strictly rising
+// layers) -- that IS a single-type curve, just spelled out one letter per
+// triplet, so it still counts as matching a single-letter published label.
+// A mixed string ("KHA", "AK", ...) means the trend actually changes
+// partway through, which a single-letter label can never truthfully match.
+function collapseIfUniform(letters) {
+  return [...new Set(letters)].length === 1 ? letters[0] : letters
+}
+
 // Compares the type derived from a vesReading's own layer values against
 // the curveTypePublished label from the paper. A mismatch means the label
 // is a claim, not a fact -- see the layers themselves for what actually happens.
@@ -46,7 +56,7 @@ function checkLabel(reading) {
     station: reading.station,
     derived,
     published,
-    matches: published.length > 0 && derived === published,
+    matches: published.length > 0 && collapseIfUniform(derived) === published,
   }
 }
 

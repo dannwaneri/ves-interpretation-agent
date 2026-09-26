@@ -1,0 +1,40 @@
+{
+  "questionId": "bori-table-swap-kenpoly",
+  "question": "The paper's page-7 summary table lists Kenpoly sec school field's aquifer resistivity as 2950 ohm-m. Is that the right number for this station, or should I trust a different value?",
+  "condition": "structured",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No — the 2950 ohm-m value is wrong for Kenpoly sec school field; it actually belongs to BMGS bori field due to a label swap in the paper's table.",
+    "explanation": "The paper accidentally swapped the labels for two stations in its page-7 summary table: the row labeled 'Kenpoly sec school field' contains data that matches the coordinates and figure caption for BMGS bori field, not Kenpoly.",
+    "conflict": {
+      "plainSummary": "The paper gives two different aquifer resistivity values for Kenpoly sec school field: 3706 ohm-m from the figure caption and 2950 ohm-m from the summary table.",
+      "claimA": "Figure 2 panel caption (IPI2Win-inverted layer table) says Kenpoly sec school field has aquifer resistivity 3706 ohm-m",
+      "claimB": "p.7 Table 1 (summary table), row printed 'Kenpoly sec school field' says 2950 ohm-m",
+      "trusted": "the figure caption and coordinate table, which say 3706 ohm-m",
+      "why": "the figure caption and p.3 coordinate table agree with each other and both contradict the p.7 row label — confirming the label was swapped"
+    },
+    "sources": [
+      "Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024), p.7 Table 1, p.3 coordinate table, Figure 2 caption"
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity from figure caption",
+        "value": "3706 ohm-m"
+      },
+      {
+        "label": "aquifer resistivity from summary table",
+        "value": "2950 ohm-m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"Kenpoly-sec-school-field\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-kenpoly-sec-school-field",
+      "reading-bori-kenpoly-sec-school-field-p7table"
+    ]
+  },
+  "durationMs": 13891
+}

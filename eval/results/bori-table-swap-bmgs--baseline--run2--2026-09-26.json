@@ -1,0 +1,67 @@
+{
+  "questionId": "bori-table-swap-bmgs",
+  "question": "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?",
+  "condition": "baseline",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "A reading of 2950 ohm-m at BMGS Bori Field is normal because it matches the published value for that exact location.",
+    "explanation": "The VES survey data from the Bori study lists BMGS Bori Field with an aquifer resistivity of 3706 ohm-m — not 2950 — but 2950 ohm-m is the published value for Kenpoly Secondary School Field, a different site nearby. Since your reading doesn’t match BMGS Bori Field’s reported value (3706 ohm-m), but *does* match another real, documented station in the same study, it’s likely you misidentified the location — not that the number itself is suspicious.",
+    "conflict": {
+      "plainSummary": "The text lists two different resistivity values for 'BMGS bori field': one says 3706 ohm-m, and another appears to mislabel 2950 ohm-m as belonging to that station.",
+      "claimA": "BMGS bori field has aquifer resistivity of 3706 ohm-m",
+      "claimB": "BMGS bori field has aquifer resistivity of 2950 ohm-m",
+      "trusted": "BMGS bori field has aquifer resistivity of 3706 ohm-m",
+      "why": "The table explicitly assigns 3706 ohm-m to BMGS bori field, while 2950 ohm-m is clearly assigned to Kenpoly sec school field in the same table."
+    },
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "Reported resistivity at BMGS bori field",
+        "value": "3706 ohm-m"
+      },
+      {
+        "label": "Reported resistivity at Kenpoly sec school field",
+        "value": "2950 ohm-m"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 20.137
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 16.249
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 18,
+        "score": 10.763
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 32,
+        "score": 9.924
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 44,
+        "score": 8.347
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 5,
+        "score": 8.292
+      }
+    ]
+  },
+  "durationMs": 8414
+}

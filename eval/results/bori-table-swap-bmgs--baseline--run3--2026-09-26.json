@@ -1,0 +1,67 @@
+{
+  "questionId": "bori-table-swap-bmgs",
+  "question": "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "A reading of 2950 ohm-m at BMGS Bori Field is normal because it matches the published value for that exact location.",
+    "explanation": "The retrieved text explicitly lists the aquifer resistivity at BMGS Bori Field as 3706 ohm-m — not 2950 — but the 2950 ohm-m value is correctly assigned in the same table to Kenpoly sec school field, showing it's a typical, documented value for a real site in Bori.",
+    "conflict": {
+      "plainSummary": "The query claims 2950 ohm-m was measured at BMGS Bori Field, but the source says BMGS Bori Field has 3706 ohm-m and Kenpoly sec school field has 2950 ohm-m.",
+      "claimA": "BMGS Bori Field resistivity is 2950 ohm-m",
+      "claimB": "BMGS Bori Field resistivity is 3706 ohm-m",
+      "trusted": "BMGS Bori Field resistivity is 3706 ohm-m",
+      "why": "The table in the source clearly and unambiguously assigns 3706 ohm-m to BMGS bori field and 2950 ohm-m to Kenpoly sec school field."
+    },
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "BMGS Bori Field aquifer resistivity",
+        "value": "3706 ohm-m"
+      },
+      {
+        "label": "Kenpoly sec school field aquifer resistivity",
+        "value": "2950 ohm-m"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 20.137
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 16.249
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 18,
+        "score": 10.763
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 32,
+        "score": 9.924
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 44,
+        "score": 8.347
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 5,
+        "score": 8.292
+      }
+    ]
+  },
+  "durationMs": 7623
+}

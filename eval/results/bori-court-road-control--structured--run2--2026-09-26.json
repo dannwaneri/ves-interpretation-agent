@@ -1,0 +1,41 @@
+{
+  "questionId": "bori-court-road-control",
+  "question": "I measured 701 ohm-m at Court-road in Bori Metropolis. Does that number match a reliable, uncontested part of the source paper?",
+  "condition": "structured",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, 701 ohm-m is the correct and uncontested aquifer resistivity for Court-road — it appears consistently in the paper’s figure caption and matches the knowledge base summary.",
+    "explanation": "The value 701 ohm-m is reported in the GROQ data as the 'reportedAquiferResistivityOhmM' for Court-road, sourced directly from the IPI2Win-inverted layer table in Figure 2’s panel caption — a reliable part of the paper. It also matches the official station summary table in the knowledge base, with no conflicting values for this same station.",
+    "conflict": null,
+    "sources": [
+      "Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024). Assessment of Aquifer Resistivity, Depth, and Thickness using Vertical Electrical Sounding (VES) in Parts of Bori Metropolis for Groundwater Exploration. World Journal of Advanced Research and Reviews, 24(02), 275-285."
+    ],
+    "numbers": [
+      {
+        "label": "aquifer resistivity",
+        "value": "701 ohm-m"
+      },
+      {
+        "label": "aquifer depth",
+        "value": "62.9 m"
+      },
+      {
+        "label": "aquifer thickness",
+        "value": "49.9 m"
+      },
+      {
+        "label": "RMS error",
+        "value": "3.48 %"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"Court-road\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-court-road"
+    ]
+  },
+  "durationMs": 12205
+}

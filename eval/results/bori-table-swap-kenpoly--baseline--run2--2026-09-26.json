@@ -1,0 +1,52 @@
+{
+  "questionId": "bori-table-swap-kenpoly",
+  "question": "The paper's page-7 summary table lists Kenpoly sec school field's aquifer resistivity as 2950 ohm-m. Is that the right number for this station, or should I trust a different value?",
+  "condition": "baseline",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "uncertain",
+    "headline": "It's uncertain because the retrieved text does not list a resistivity value for 'Kenpoly sec school field' — only for 'Kenpoly convocation arena field' and 'BMGS bori field'.",
+    "explanation": "The table in the retrieved chunks shows resistivity values for several stations, but 'Kenpoly sec school field' is missing its aquifer resistivity entry — the cell is blank or cut off in the excerpt. No other chunk provides that number.",
+    "conflict": null,
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 31.445
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 26.233
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 13,
+        "score": 21.609
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 14,
+        "score": 19.453
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 24,
+        "score": 16.851
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 17,
+        "score": 14.982
+      }
+    ]
+  },
+  "durationMs": 3095
+}

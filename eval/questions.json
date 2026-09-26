@@ -1,0 +1,124 @@
+{
+  "_draft": false,
+  "_note": "Drafted by Claude on 2026-09-26, approved by Daniel, then run through Phase 4 eval (agent/qwen.js qwen-plus, 3 reps/condition, eval/results/). Every expectedVerdict/expectedKeyFacts entry is grounded in what the Knowledge Base entries (aquifer_benchmarks, survey_site_metadata, source_errors/*) and the dataset itself actually say -- none are guessed thresholds. The control questions (bori-court-road, choba-depth-consistency, bori-kenpoly-convocation) score on data-integrity (no fabricated conflict) rather than a geological threshold, since the Knowledge Base does not state a universal resistivity cutoff for 'normal' vs 'anomalous'.",
+  "_correctionLog": [
+    "2026-09-26: etche-egwi-depth-arithmetic's expectedConflict changed from true to false. The eval run showed the agent correctly answering verdict=anomalous with a fully grounded explanation (6.2935 + 37.957 = 44.2505 m vs the paper's printed 37.25 m), but conflict=null every time. That's correct: the answer schema's 'conflict' field is for two claims disagreeing (a value swap, a curve-type label vs its own data); a single printed number not matching its own arithmetic is a different shape and belongs in 'explanation', not 'conflict'. The original expectedConflict:true was a mis-specification of this eval question, not an agent defect."
+  ],
+  "questions": [
+    {
+      "id": "bori-table-swap-bmgs",
+      "question": "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?",
+      "expectedVerdict": "normal",
+      "expectedConflict": true,
+      "expectedSource": "Menegbo et al. (2024), Figure 2 caption / p.3 coordinate table",
+      "expectedKeyFacts": [
+        "2950 ohm-m matches Figure 2's own caption and the p.3 coordinate table for BMGS Bori Field",
+        "the p.7 summary table's 'BMGS bori field' row (3706 ohm-m) is mislabeled -- it actually belongs to Kenpoly sec school field",
+        "trusted value is 2950 ohm-m"
+      ],
+      "notes": "The existing demo question. Tests the table-swap conflict in the direction already covered in the README/submission."
+    },
+    {
+      "id": "bori-table-swap-kenpoly",
+      "question": "The paper's page-7 summary table lists Kenpoly sec school field's aquifer resistivity as 2950 ohm-m. Is that the right number for this station, or should I trust a different value?",
+      "expectedVerdict": "anomalous",
+      "expectedConflict": true,
+      "expectedSource": "Menegbo et al. (2024), Figure 2 caption / p.3 coordinate table",
+      "expectedKeyFacts": [
+        "the p.7 table's 2950 ohm-m entry for Kenpoly sec school field is mislabeled",
+        "the true Kenpoly value, from Figure 2's own caption and the p.3 coordinate table, is 3706 ohm-m",
+        "2950 ohm-m actually belongs to BMGS Bori Field"
+      ],
+      "notes": "Tests the SAME table swap from the other direction. If the agent only catches the swap when asked about BMGS specifically, this question will expose that."
+    },
+    {
+      "id": "choba-curve-type",
+      "question": "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?",
+      "expectedVerdict": "anomalous",
+      "expectedConflict": true,
+      "expectedSource": "Oghonyon et al. (2025)",
+      "expectedKeyFacts": [
+        "published as A-type",
+        "actual sequence 91.2 -> 380.2 -> 43.25 -> 474.3 -> 597.1 ohm-m is non-monotonic (a dip at layer 3)",
+        "the paper's own Discussion text acknowledges the dip (l1<l2>l3<l4<l5) while still calling the curve A-type throughout"
+      ],
+      "notes": "The existing demo question."
+    },
+    {
+      "id": "etche-odufor-curve-type",
+      "question": "Etche LGA's Odufor station is labeled an A-type curve in the paper. Does the layer data actually support that?",
+      "expectedVerdict": "anomalous",
+      "expectedConflict": true,
+      "expectedSource": "Nwankwoala et al. (2022), Table 9",
+      "expectedKeyFacts": [
+        "sequence 20.32 -> 851.16 -> 2511.9 -> 1345.0 ohm-m is non-monotonic",
+        "layer 4 (1345.0) is lower than layer 3 (2511.9)",
+        "published as A-type but the data does not support strict monotonic increase"
+      ],
+      "notes": "One of the two Etche A-type mislabels."
+    },
+    {
+      "id": "etche-opiro-curve-type",
+      "question": "Is Opiro's curve type in the Etche paper really A-type, given its layer values?",
+      "expectedVerdict": "anomalous",
+      "expectedConflict": true,
+      "expectedSource": "Nwankwoala et al. (2022), Table 9",
+      "expectedKeyFacts": [
+        "sequence 54.639 -> 9147.8 -> 1119.9 -> 2566.8 ohm-m",
+        "layer 3 (1119.9) is far lower than layer 2 (9147.8), a pronounced dip",
+        "published as A-type but the sequence is non-monotonic"
+      ],
+      "notes": "The other Etche A-type mislabel. Together with odufor and choba, this covers all 3 documented curve-type mislabels."
+    },
+    {
+      "id": "etche-egwi-depth-arithmetic",
+      "question": "Does Egwi station's reported layer depth in the Etche paper add up correctly?",
+      "expectedVerdict": "anomalous",
+      "expectedConflict": false,
+      "expectedSource": "Nwankwoala et al. (2022), Egwi station, layer 4",
+      "expectedKeyFacts": [
+        "printed cumulative depth for layer 4 is 37.25 m",
+        "layer 4 depth should equal the prior cumulative depth (6.2935 m) plus the layer 4 thickness (37.957 m), which is 44.25 m",
+        "the printed value does not reconcile with the paper's own thickness values"
+      ],
+      "notes": "A different KIND of source issue (depth arithmetic, not a value swap or a curve-type label) -- tests whether the agent's conflict detection generalizes past the two demo cases. This is a data-integrity question, not a resistivity-normalcy one, so 'anomalous' here means 'the printed number doesn't check out', not 'the aquifer is unusual'."
+    },
+    {
+      "id": "bori-court-road-control",
+      "question": "I measured 701 ohm-m at Court-road in Bori Metropolis. Does that number match a reliable, uncontested part of the source paper?",
+      "expectedVerdict": "normal",
+      "expectedConflict": false,
+      "expectedSource": "Menegbo et al. (2024), Figure 2 caption",
+      "expectedKeyFacts": [
+        "701 ohm-m at Court-road comes from Figure 2's own caption",
+        "no known label swap or arithmetic error affects this station"
+      ],
+      "notes": "NEGATIVE CONTROL. No known issue touches this station. Grade this on whether the agent avoids fabricating a conflict, not on a specific resistivity threshold -- the Knowledge Base does not assert a universal 'normal' cutoff in ohm-m."
+    },
+    {
+      "id": "choba-depth-consistency-control",
+      "question": "Is there anything wrong with the depth arithmetic in the Choba Lawn Tennis Field readings?",
+      "expectedVerdict": "normal",
+      "expectedConflict": false,
+      "expectedSource": "Oghonyon et al. (2025)",
+      "expectedKeyFacts": [
+        "depth arithmetic for Choba's four finite layers is internally consistent",
+        "no depth transcription inconsistency is documented for this paper",
+        "the curve-type labeling issue is a separate matter and still applies, but is not a depth-arithmetic problem"
+      ],
+      "notes": "NEGATIVE CONTROL paired with choba-curve-type: same station, different question type. Tests whether the agent can tell 'no depth issue here' apart from 'yes there's a curve-type issue here' for the same station, instead of dumping every known issue regardless of what was asked."
+    },
+    {
+      "id": "bori-kenpoly-convocation-control",
+      "question": "I measured 3488 ohm-m at Kenpoly Convocation Arena, Bori. Does that check out against the source paper, and is there any known issue with it?",
+      "expectedVerdict": "normal",
+      "expectedConflict": false,
+      "expectedSource": "Menegbo et al. (2024), Figure 2 caption",
+      "expectedKeyFacts": [
+        "3488 ohm-m matches Figure 2's own caption for this station",
+        "no known label swap or arithmetic error affects Kenpoly Convocation Arena"
+      ],
+      "notes": "A third negative control, at a different Bori station than bori-court-road-control, to check the agent isn't just pattern-matching 'Bori = swap' regardless of which station is asked about."
+    }
+  ]
+}

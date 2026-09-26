@@ -1,0 +1,73 @@
+{
+  "questionId": "etche-egwi-depth-arithmetic",
+  "question": "Does Egwi station's reported layer depth in the Etche paper add up correctly?",
+  "condition": "baseline",
+  "run": 1,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "uncertain",
+    "headline": "It is uncertain whether Egwi station's reported layer depths add up correctly because the paper does not provide a full depth breakdown for Egwi — only partial numbers are given without clear layer-wise cumulative depth or thickness values.",
+    "explanation": "The retrieved text mentions Egwi community in Table 9, listing resistivity values and five depth values (D1 to D5): 0.5m, 4.1m, 6.2m, 37m, and a blank for D5. But it gives no thicknesses for Egwi’s layers, no cumulative depth calculation, and no explicit statement of how those depths relate to layer boundaries — so we cannot verify if they sum or align consistently.",
+    "conflict": null,
+    "sources": [
+      "etche.txt, Table 9"
+    ],
+    "numbers": [
+      {
+        "label": "Egwi D1",
+        "value": "0.5 m"
+      },
+      {
+        "label": "Egwi D2",
+        "value": "4.1 m"
+      },
+      {
+        "label": "Egwi D3",
+        "value": "6.2 m"
+      },
+      {
+        "label": "Egwi D4",
+        "value": "37 m"
+      },
+      {
+        "label": "Egwi D5",
+        "value": "not provided"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "etche",
+        "chunkIndex": 50,
+        "score": 9.376
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 49,
+        "score": 7.556
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 28,
+        "score": 6.396
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 51,
+        "score": 6.174
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 4,
+        "score": 6.083
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 37,
+        "score": 5.831
+      }
+    ]
+  },
+  "durationMs": 5829
+}

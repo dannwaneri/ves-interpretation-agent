@@ -1,0 +1,59 @@
+{
+  "questionId": "choba-curve-type",
+  "question": "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?",
+  "condition": "baseline",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "No — the paper contradicts itself by calling the curve both A-type and describing a resistivity trend that matches a different curve type.",
+    "explanation": "An A-type curve means resistivity steadily increases with depth (ρ1 < ρ2 < ρ3 < ρ4 < ρ5), but one chunk explicitly states the trend is ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 — which has a dip at layer 3 and does not steadily increase.",
+    "conflict": {
+      "plainSummary": "The paper gives two incompatible descriptions of the same curve's shape: one says it's an A-type (steady increase), the other gives a specific sequence that violates that pattern.",
+      "claimA": "The curve is an A-type curve, defined by progressive increase in resistivity with depth.",
+      "claimB": "The resistivity trend is ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5.",
+      "trusted": "The trend ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 is correct, so it is not an A-type curve.",
+      "why": "The trend ℓ1 < ℓ2 > ℓ3 < ℓ4 < ℓ5 is a specific, quantitative description of measured values, while 'A-type' is a broad classification that this sequence explicitly violates."
+    },
+    "sources": [
+      "choba.txt (chunk 2)",
+      "choba.txt (chunk 5)"
+    ],
+    "numbers": [],
+    "retrievedChunks": [
+      {
+        "paper": "choba",
+        "chunkIndex": 24,
+        "score": 12.334
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 1,
+        "score": 11.647
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 33,
+        "score": 11.523
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 7,
+        "score": 11.29
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 27,
+        "score": 11.25
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 42,
+        "score": 10.729
+      }
+    ]
+  },
+  "durationMs": 6899
+}

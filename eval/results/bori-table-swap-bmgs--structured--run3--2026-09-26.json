@@ -1,0 +1,45 @@
+{
+  "questionId": "bori-table-swap-bmgs",
+  "question": "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?",
+  "condition": "structured",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, 2950 ohm-m is normal for BMGS Bori Field — it matches the trusted figure caption and fits the pattern of high-resistivity aquifers in Bori.",
+    "explanation": "All eight VES surveys in Bori Metropolis found aquifer resistivity above 1000 ohm-m (a sign of good-quality freshwater), and 2950 ohm-m falls right in the middle of that healthy range. It’s also the value confirmed by the paper’s own figure caption and coordinate table — the most reliable parts of the report.",
+    "conflict": {
+      "plainSummary": "The same station has two different aquifer resistivity values reported in the same paper: 2950 ohm-m from the figure caption, and 3706 ohm-m from the summary table.",
+      "claimA": "Figure 2 panel caption (IPI2Win-inverted layer table) says 2950 ohm-m",
+      "claimB": "p.7 Table 1, row labeled 'BMGS bori field' says 3706 ohm-m",
+      "trusted": "the figure caption and coordinate table, which say 2950 ohm-m",
+      "why": "The paper's own coordinate table (p.3) and figure captions agree with each other and disagree with the summary table labels — and the knowledge base confirms the table rows are swapped, so that 'BMGS bori field' row actually belongs to Kenpoly."
+    },
+    "sources": [
+      "Menegbo et al. (2024), Figure 2 caption, p.6",
+      "Menegbo et al. (2024), Table 1 (coordinates), p.3"
+    ],
+    "numbers": [
+      {
+        "label": "reported aquifer resistivity",
+        "value": "2950 ohm-m"
+      },
+      {
+        "label": "reported aquifer depth",
+        "value": "66.5 m"
+      },
+      {
+        "label": "reported aquifer thickness",
+        "value": "36.2 m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"BMGS-bori-field\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-bmgs-bori-field",
+      "reading-bori-bmgs-bori-field-p7table"
+    ]
+  },
+  "durationMs": 14854
+}

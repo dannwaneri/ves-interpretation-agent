@@ -1,0 +1,30 @@
+{
+  "questionId": "bori-court-road-control",
+  "question": "I measured 701 ohm-m at Court-road in Bori Metropolis. Does that number match a reliable, uncontested part of the source paper?",
+  "condition": "structured",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, 701 ohm-m matches the paper's own figure caption and is confirmed by the knowledge base as reliable.",
+    "explanation": "The value comes directly from the layer table in Figure 2's panel caption (labeled 'IPI2Win-inverted layer table'), which the paper uses to report its official results — and the knowledge base explicitly confirms this same number as correct for Court-road.",
+    "conflict": null,
+    "sources": [
+      "Menegbo, B.G., Davies, O.A., Horsfall, O.I. (2024). Assessment of Aquifer Resistivity, Depth, and Thickness using Vertical Electrical Sounding (VES) in Parts of Bori Metropolis for Groundwater Exploration. World Journal of Advanced Research and Reviews, 24(02), 275-285.",
+      "Bori Low-to-Moderate Resistivity Stations — Knowledge Base Entry"
+    ],
+    "numbers": [
+      {
+        "label": "reported aquifer resistivity",
+        "value": "701 ohm-m"
+      }
+    ],
+    "groqQuery": "*[_type == \"vesReading\" && site->name == \"Bori Metropolis\" && station == \"Court-road\"]{ _id, station, sourceLocation, curveTypePublished, rmsPercent, layers, reportedAquiferResistivityOhmM, reportedAquiferDepthM, reportedAquiferThicknessM, \"siteName\": site->name, \"paperId\": paper._ref, \"paperTitle\": paper->title, \"paperCitation\": paper->citation }",
+    "documentIds": [
+      "reading-bori-court-road"
+    ]
+  },
+  "durationMs": 10514
+}

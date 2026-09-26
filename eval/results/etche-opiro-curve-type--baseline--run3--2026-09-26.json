@@ -1,0 +1,72 @@
+{
+  "questionId": "etche-opiro-curve-type",
+  "question": "Is Opiro's curve type in the Etche paper really A-type, given its layer values?",
+  "condition": "baseline",
+  "run": 3,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "anomalous",
+    "headline": "Opiro's curve type is reported as A-type but its listed resistivity values (54.6, 9147.8, 1119.9, 2566.8 Ωm) follow a ρ1 < ρ2 > ρ3 < ρ4 pattern that matches KH-type, not A-type.",
+    "explanation": "An A-type curve should show steadily increasing resistivity with depth (ρ1 < ρ2 < ρ3 < ρ4), while KH-type alternates up and down. Opiro’s values go up (54.6 → 9147.8), then down (9147.8 → 1119.9), then up again (1119.9 → 2566.8) — a classic KH signature.",
+    "conflict": {
+      "plainSummary": "The paper labels Opiro’s curve as A-type in Table 9 but describes and lists resistivity values matching KH-type behavior.",
+      "claimA": "Table 9 states Opiro Community has curve type A.",
+      "claimB": "The resistivity values for Opiro (54.639, 9147.8, 1119.9, 2566.8 Ωm) follow the KH pattern ρ1 < ρ2 > ρ3 < ρ4.",
+      "trusted": "Opiro’s curve is KH-type, based on its actual resistivity sequence.",
+      "why": "Curve type is defined by the shape of the resistivity vs. depth trend, not by label alone — and the numbers unambiguously match KH."
+    },
+    "sources": [
+      "chunk 3 -- etche.txt",
+      "chunk 6 -- etche.txt"
+    ],
+    "numbers": [
+      {
+        "label": "Opiro resistivity values",
+        "value": "54.639, 9147.8, 1119.9, 2566.8 Ωm"
+      },
+      {
+        "label": "Opiro curve type in table",
+        "value": "A"
+      },
+      {
+        "label": "Opiro curve type implied by values",
+        "value": "KH"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "etche",
+        "chunkIndex": 46,
+        "score": 11.712
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 42,
+        "score": 11.678
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 28,
+        "score": 11.289
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 49,
+        "score": 11.258
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 48,
+        "score": 11.092
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 39,
+        "score": 10.755
+      }
+    ]
+  },
+  "durationMs": 9878
+}

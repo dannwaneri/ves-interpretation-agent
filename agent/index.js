@@ -131,15 +131,47 @@ function flattenKnownNumbers(rows) {
   return known
 }
 
-// Rule enforcement in code, not just in the prompt: flag (don't block on)
-// any number in the answer that doesn't trace back to the GROQ data.
-function warnOnUngroundedNumbers(answer, rows) {
+// Only counts a number as a "claim" if it's attached to a measurement unit
+// (ohm-m, %, or a bare meter figure). Citation numbers like "Table 9" or a
+// publication year ("2022") are not data claims and must not trip the
+// grounding check just because they're digits.
+function numbersIn(text) {
+  const re = /(-?\d+(?:\.\d+)?)\s*(?:ohm-?m|ohm·m|Ω·m|%|m(?![a-zA-Z]))/gi
+  return [...String(text).matchAll(re)].map((m) => parseFloat(m[1]))
+}
+
+// Rule enforcement in code, not just in the prompt: the "numbers" list is
+// informational, so an ungrounded entry there only gets a warning. A
+// fabricated "conflict" is worse -- it tells the reader two real sources
+// disagree when they don't (see the Kenpoly Convocation Arena case found
+// during Phase 4 eval, where the model borrowed a different station's
+// documented swap value). So a conflict whose claims cite a number absent
+// from the GROQ data gets dropped in code, not just flagged.
+function enforceGrounding(answer, rows, curveChecks) {
   const known = flattenKnownNumbers(rows)
+
   for (const n of answer.numbers || []) {
-    const match = String(n.value).match(/-?\d+(\.\d+)?/)
-    if (!match) continue
-    if (!known.has(parseFloat(match[0]))) {
-      console.error(`[agent] warning: numbers[] value "${n.value}" was not found in the GROQ data -- may not be grounded`)
+    for (const val of numbersIn(n.value)) {
+      if (!known.has(val)) {
+        console.error(`[agent] warning: numbers[] value "${n.value}" was not found in the GROQ data -- may not be grounded`)
+      }
+    }
+  }
+
+  if (answer.conflict) {
+    const claimNumbers = [
+      ...numbersIn(answer.conflict.claimA || ''),
+      ...numbersIn(answer.conflict.claimB || ''),
+      ...numbersIn(answer.conflict.trusted || ''),
+    ]
+    const ungrounded = claimNumbers.filter((v) => !known.has(v))
+    if (ungrounded.length > 0) {
+      console.error(
+        `[agent] dropping fabricated conflict: claim cites ${ungrounded.join(', ')}, not present in the GROQ data for this station`
+      )
+      answer.conflict = null
+      const hasGroundedMismatch = curveChecks.some((c) => c.matches === false)
+      if (answer.verdict === 'anomalous' && !hasGroundedMismatch) answer.verdict = 'uncertain'
     }
   }
 }
@@ -170,6 +202,8 @@ Numbers, layer values, and which station/site a reading belongs to come ONLY fro
 Explanations, plain-language reasoning, and the "why" behind any source disagreement come ONLY from the KNOWLEDGE BASE ENTRIES block. Never invent a source or a conflict that isn't shown there.
 
 If the GROQ data contains two vesReading documents for the same station with different reportedAquiferResistivityOhmM values, that is the disagreement: describe it using each document's sourceLocation field to say where each value came from.
+
+Do NOT build a "conflict" out of a different station's numbers, even one with a similar-sounding name (e.g. "Kenpoly Convocation Arena" is not "Kenpoly sec school field" -- they are different stations with different data, do not merge them). A conflict's claimA and claimB must both come from documents in the GROQ DATA block for the SAME station this question is about. If the GROQ data contains only one document for that station and the CURVE TYPE CHECK shows no mismatch, set "conflict" to null -- there is nothing to compare it against, however similar another station's documented issue might sound.
 
 CURVE TYPE CHECK block below is computed directly from the layer numbers in code, not read from prose and not something you should re-derive yourself. For any station where "matches" is false, the paper's own curveTypePublished label does not match what its own layer values actually do -- that is itself a source disagreement (a label contradicting its own data). Use "derived" as the trusted claim and "published" as the claim to distrust, and explain why using the specific layer where the trend breaks (read the resistivity values in order from the GROQ DATA block to name it, e.g. "the third layer drops instead of rising"). Only raise this as the "conflict" if the question is actually about that station's curve type.
 
@@ -216,7 +250,7 @@ async function ask(query) {
 
   const entriesText = await readEntries(paths)
   const answer = await synthesize(query, entriesText, groqData.rows, curveChecks)
-  warnOnUngroundedNumbers(answer, groqData.rows)
+  enforceGrounding(answer, groqData.rows, curveChecks)
 
   answer.groqQuery = groqData.query
   answer.documentIds = groqData.rows.map((r) => r._id)

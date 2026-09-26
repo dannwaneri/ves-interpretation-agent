@@ -1,0 +1,57 @@
+{
+  "questionId": "bori-court-road-control",
+  "question": "I measured 701 ohm-m at Court-road in Bori Metropolis. Does that number match a reliable, uncontested part of the source paper?",
+  "condition": "baseline",
+  "run": 1,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "normal",
+    "headline": "Yes, 701 ohm-m at Court Road matches the published value in the paper's main data table.",
+    "explanation": "The paper lists 'Court road' in its summary table with an aquifer resistivity of 701 ohm-m — this is the standard unit for measuring how strongly underground materials resist electrical current, which helps identify water-bearing layers.",
+    "conflict": null,
+    "sources": [
+      "bori.txt, Table 1"
+    ],
+    "numbers": [
+      {
+        "label": "Court road aquifer resistivity",
+        "value": "701 ohm-m"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "bori",
+        "chunkIndex": 22,
+        "score": 23.85
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 21,
+        "score": 17.812
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 23,
+        "score": 15.529
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 14,
+        "score": 15.515
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 3,
+        "score": 10.996
+      },
+      {
+        "paper": "bori",
+        "chunkIndex": 1,
+        "score": 9.548
+      }
+    ]
+  },
+  "durationMs": 3221
+}

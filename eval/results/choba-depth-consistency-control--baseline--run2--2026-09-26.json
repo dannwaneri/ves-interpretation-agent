@@ -1,0 +1,69 @@
+{
+  "questionId": "choba-depth-consistency-control",
+  "question": "Is there anything wrong with the depth arithmetic in the Choba Lawn Tennis Field readings?",
+  "condition": "baseline",
+  "run": 2,
+  "model": "qwen-plus",
+  "date": "2026-09-26",
+  "ok": true,
+  "answer": {
+    "verdict": "uncertain",
+    "headline": "We cannot determine if there's an error in the depth arithmetic because the retrieved text does not provide enough consistent or complete depth values to check calculations.",
+    "explanation": "The text mentions depths like 'layer 5 at 90ma' (likely a typo for '90 m') and 'layer 4 at 71.78m', but it never states the depths of the other layers, their cumulative thicknesses, or how those depths were calculated from electrode spacing or apparent resistivity data.",
+    "conflict": null,
+    "sources": [
+      "choba.txt"
+    ],
+    "numbers": [
+      {
+        "label": "layer 5 depth",
+        "value": "90 m"
+      },
+      {
+        "label": "layer 4 depth",
+        "value": "71.78 m"
+      },
+      {
+        "label": "layer 5 resistivity",
+        "value": "597.1 Ωm"
+      },
+      {
+        "label": "layer 4 resistivity",
+        "value": "474.3 Ωm"
+      }
+    ],
+    "retrievedChunks": [
+      {
+        "paper": "choba",
+        "chunkIndex": 7,
+        "score": 10.517
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 15,
+        "score": 9.261
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 12,
+        "score": 9.172
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 33,
+        "score": 8.838
+      },
+      {
+        "paper": "choba",
+        "chunkIndex": 24,
+        "score": 8.577
+      },
+      {
+        "paper": "etche",
+        "chunkIndex": 18,
+        "score": 8.35
+      }
+    ]
+  },
+  "durationMs": 4673
+}
