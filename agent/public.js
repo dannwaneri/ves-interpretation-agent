@@ -9,6 +9,7 @@ const {env} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
 const {resolveSiteFromCatalog, buildSiteQuery} = require('./groq.js')
 const {curveTypeChecks} = require('./curveType.js')
+const {tableSwapChecks} = require('./tableSwap.js')
 const {enforceGrounding} = require('./grounding.js')
 
 const API_VERSION = 'v2024-01-01'
@@ -41,14 +42,15 @@ async function getPublicGroqData(question) {
   return {query, rows: rows || []}
 }
 
-async function publicSynthesize(query, groqRows, curveChecks) {
+async function publicSynthesize(query, groqRows, curveChecks, swapChecks) {
   const groqDataText = JSON.stringify(groqRows, null, 2)
   const curveChecksText = JSON.stringify(curveChecks, null, 2)
-  const systemPrompt = `You are a VES interpretation assistant running in --public mode: no Knowledge Base access, only the raw GROQ DATA and CURVE TYPE CHECK blocks below, read from the dataset's public query API. Say so plainly if the question needs source-paper prose reasoning you don't have.
+  const swapChecksText = JSON.stringify(swapChecks, null, 2)
+  const systemPrompt = `You are a VES interpretation assistant running in --public mode: no Knowledge Base access, only the raw GROQ DATA, CURVE TYPE CHECK, and TABLE SWAP CHECK blocks below, read from the dataset's public query API. Say so plainly if the question needs source-paper prose reasoning you don't have.
 
 Numbers, layer values, and which station/site a reading belongs to come ONLY from the GROQ DATA block. Never invent or adjust a number, and never state a number that isn't present in that block.
 
-If the GROQ data contains two vesReading documents for the same station with different reportedAquiferResistivityOhmM values, that is the disagreement: describe it using each document's sourceLocation field to say where each value came from.
+TABLE SWAP CHECK is computed directly in code, not something you should re-derive. For any station listed there, "trustedValue" and "trustedDocumentId" are already resolved -- use them as-is. Do not reason your own way to a different attribution from sourceLocation text; you have gotten this backwards before. Never reassign a value to a different station name than the one on its own document.
 
 Do NOT build a "conflict" out of a different station's numbers, even one with a similar-sounding name. A conflict's claimA and claimB must both come from documents in the GROQ DATA block for the SAME station this question is about.
 
@@ -73,18 +75,69 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
 }
 
 Set "conflict" to null if the GROQ data shows no disagreement. Every value in "numbers" must literally appear in the GROQ data below.`
-  const userPrompt = `GROQ DATA (from the public query API):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code):\n${curveChecksText}\n\nQuestion: ${query}`
+  const userPrompt = `GROQ DATA (from the public query API):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code):\n${curveChecksText}\n\nTABLE SWAP CHECK (computed in code):\n${swapChecksText}\n\nQuestion: ${query}`
   const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
   return JSON.parse(match[0])
 }
 
+function normalize(s) {
+  return String(s)
+    .toLowerCase()
+    .replace(/[-_]/g, ' ')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function tokenOverlap(a, b) {
+  const tokensA = new Set(normalize(a).split(' ').filter((t) => t.length > 2))
+  const tokensB = normalize(b).split(' ').filter((t) => t.length > 2)
+  return tokensB.filter((t) => tokensA.has(t)).length
+}
+
+function claimedOhmM(question) {
+  const m = String(question).match(/(-?\d+(?:\.\d+)?)\s*ohm-?m/i)
+  return m ? parseFloat(m[1]) : null
+}
+
+// Even with the rule stated in the prompt, qwen was observed reversing this
+// disambiguation repeatedly in testing without the Knowledge Base's
+// narrative to lean on. Rather than trust the model's prose reasoning for a
+// fact that's mechanically knowable, override the verdict and conflict
+// block in code once a table-swap check identifies the relevant station.
+function applyTableSwapOverride(answer, question, swapChecks) {
+  if (swapChecks.length === 0) return
+  let check = swapChecks[0]
+  if (swapChecks.length > 1) {
+    check = swapChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+  }
+  if (check.trustedValue === null) return
+
+  const trustedClaim = check.claims.find((c) => c.value === check.trustedValue)
+  const untrustedClaim = check.claims.find((c) => c.value !== check.trustedValue)
+  const claimed = claimedOhmM(question)
+
+  if (claimed !== null && claimed !== check.trustedValue && claimed !== untrustedClaim?.value) return
+
+  answer.verdict = claimed === null || claimed === check.trustedValue ? 'normal' : 'anomalous'
+  answer.conflict = {
+    plainSummary: `Two documents report different resistivity values for ${check.station}.`,
+    claimA: `${untrustedClaim.value} ohm-m (${untrustedClaim.sourceLocation})`,
+    claimB: `${trustedClaim.value} ohm-m (${trustedClaim.sourceLocation})`,
+    trusted: `${trustedClaim.value} ohm-m, from ${trustedClaim.sourceLocation}`,
+    why: 'that source is not a summary-table row, and every documented swap in this dataset is a summary-table transcription error',
+  }
+}
+
 async function publicAsk(query) {
   console.error('[agent] --public mode: no Sanity token, no Knowledge Base access. Requires the dataset to be public.')
   const groqData = await getPublicGroqData(query)
   const curveChecks = curveTypeChecks(groqData.rows)
-  const answer = await publicSynthesize(query, groqData.rows, curveChecks)
+  const swapChecks = tableSwapChecks(groqData.rows)
+  const answer = await publicSynthesize(query, groqData.rows, curveChecks, swapChecks)
+  applyTableSwapOverride(answer, query, swapChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
   answer.groqQuery = groqData.query
   answer.documentIds = groqData.rows.map((r) => r._id)
