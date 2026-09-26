@@ -1,6 +1,7 @@
 const {env, mcpCall} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
 const groq = require('./groq.js')
+const {checkLabel} = require('./curveType.js')
 
 const KB_PATH_LIMIT = 20
 
@@ -143,8 +144,25 @@ function warnOnUngroundedNumbers(answer, rows) {
   }
 }
 
-async function synthesize(query, entriesText, groqRows) {
+// Curve type is a pure function of the layer numbers, not a judgment call,
+// so it's computed here in code rather than left for the model to eyeball
+// from a raw layers array. A mismatch against curveTypePublished is itself
+// a source disagreement: the label is a claim, the layers are the fact.
+function curveTypeChecks(rows) {
+  return rows
+    .filter((r) => Array.isArray(r.layers) && r.layers.length >= 3 && r.curveTypePublished)
+    .map((r) => {
+      try {
+        return checkLabel(r)
+      } catch (e) {
+        return {station: r.station, error: e.message}
+      }
+    })
+}
+
+async function synthesize(query, entriesText, groqRows, curveChecks) {
   const groqDataText = JSON.stringify(groqRows, null, 2)
+  const curveChecksText = JSON.stringify(curveChecks, null, 2)
   const systemPrompt = `You are a VES interpretation assistant.
 
 Numbers, layer values, and which station/site a reading belongs to come ONLY from the GROQ DATA block below, read live from the dataset. Never invent or adjust a number, and never state a number that isn't present in that block.
@@ -152,6 +170,8 @@ Numbers, layer values, and which station/site a reading belongs to come ONLY fro
 Explanations, plain-language reasoning, and the "why" behind any source disagreement come ONLY from the KNOWLEDGE BASE ENTRIES block. Never invent a source or a conflict that isn't shown there.
 
 If the GROQ data contains two vesReading documents for the same station with different reportedAquiferResistivityOhmM values, that is the disagreement: describe it using each document's sourceLocation field to say where each value came from.
+
+CURVE TYPE CHECK block below is computed directly from the layer numbers in code, not read from prose and not something you should re-derive yourself. For any station where "matches" is false, the paper's own curveTypePublished label does not match what its own layer values actually do -- that is itself a source disagreement (a label contradicting its own data). Use "derived" as the trusted claim and "published" as the claim to distrust, and explain why using the specific layer where the trend breaks (read the resistivity values in order from the GROQ DATA block to name it, e.g. "the third layer drops instead of rising"). Only raise this as the "conflict" if the question is actually about that station's curve type.
 
 Write for a general audience with NO geology background. Assume the reader has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
@@ -172,7 +192,7 @@ Reply with ONLY a single JSON object (no markdown fences, no prose outside it), 
 }
 
 Set "conflict" to null if the GROQ data shows no disagreement. If there isn't enough data to answer, set verdict to "uncertain" and say so plainly in headline/explanation instead of guessing. Before answering, double-check that claimA and claimB genuinely disagree (different values) -- if you can't find two different values, set "conflict" to null instead of fabricating a disagreement. Every value in "numbers" must be a number that literally appears in the GROQ data below.`
-  const userPrompt = `GROQ DATA (from groq_query, live from the dataset):\n${groqDataText}\n\nKNOWLEDGE BASE ENTRIES (from knowledge_base_read):\n${entriesText}\n\nQuestion: ${query}`
+  const userPrompt = `GROQ DATA (from groq_query, live from the dataset):\n${groqDataText}\n\nCURVE TYPE CHECK (computed in code from the layer values above):\n${curveChecksText}\n\nKNOWLEDGE BASE ENTRIES (from knowledge_base_read):\n${entriesText}\n\nQuestion: ${query}`
   const raw = await qwen(systemPrompt, userPrompt)
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) throw new Error(`Could not parse structured answer from: ${raw}`)
@@ -186,8 +206,16 @@ async function ask(query) {
   console.error(`[agent] selected KB entries: ${paths.join(', ')}`)
   console.error(`[agent] GROQ query (${groqData.source}): ${groqData.query}`)
 
+  const curveChecks = curveTypeChecks(groqData.rows)
+  const mismatches = curveChecks.filter((c) => c.matches === false)
+  if (mismatches.length > 0) {
+    console.error(
+      `[agent] curve type mismatch: ${mismatches.map((m) => `${m.station} published=${m.published} derived=${m.derived}`).join(', ')}`
+    )
+  }
+
   const entriesText = await readEntries(paths)
-  const answer = await synthesize(query, entriesText, groqData.rows)
+  const answer = await synthesize(query, entriesText, groqData.rows, curveChecks)
   warnOnUngroundedNumbers(answer, groqData.rows)
 
   answer.groqQuery = groqData.query

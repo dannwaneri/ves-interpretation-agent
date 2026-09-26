@@ -5,7 +5,8 @@
   "description": "Agent that queries a Sanity Context Knowledge Base of Niger Delta VES survey papers over MCP.",
   "main": "index.js",
   "scripts": {
-    "ask": "node index.js"
+    "ask": "node index.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=18"
