@@ -47,3 +47,18 @@ Document IDs cited: `reading-bori-bmgs-bori-field`, `reading-bori-bmgs-bori-fiel
 ## A note on one line in this answer
 
 The line *"nearly all surveyed sites have aquifer resistivities well above 1000 ohm-m"* traces back to a real Knowledge Base entry (`station_readings/bori/high_resistivity_stations`), but that entry is a curated subset of 8 of Bori's 13 stations -- the ones that exceed 1000 ohm-m -- and its own prose doesn't disclose that it's partial ("Eight VES surveys at Bori Metropolis stations... all show..."). Five other Bori stations are well below 1000 ohm-m (as low as 149). This is a content-scoping issue in that Knowledge Base entry itself, not a fabrication by the agent -- flagged here for Phase 6/8 review rather than silently shipped unremarked.
+
+## Same station, `--public` mode -- and a bug this caught
+
+```bash
+node agent/index.js --public "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?"
+```
+
+`--public` uses no Sanity token (works once the dataset's visibility is set to public) but still calls the LLM, with no Knowledge Base access. The first time this was tested end to end, it got the swap **backwards**: verdict `ANOMALOUS`, claiming *"2950 ohm-m actually belongs to Kenpoly sec school field, not BMGS"* -- the exact opposite of the correct resolution. Without the Knowledge Base's narrative to lean on, the model was asked to disambiguate two same-station documents from `sourceLocation` text alone, and got it wrong 3/3 times, even after adding an explicit prompt rule.
+
+The fix followed the same pattern as the curve-type check: `agent/tableSwap.js` computes which of the two documents is trustworthy in code (the one whose `sourceLocation` isn't a summary-table row), and `agent/public.js`'s `applyTableSwapOverride()` rewrites the verdict and conflict block afterward rather than trusting the model's prose reasoning for a mechanically knowable fact. Re-verified 3/3 correct after the fix:
+
+```
+[NORMAL] The 2950 ohm-m reading at BMGS Bori Field is normal and trustworthy, as it
+matches the primary figure-based source and is explicitly designated as the trusted value.
+```
