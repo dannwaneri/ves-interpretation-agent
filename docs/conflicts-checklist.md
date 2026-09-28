@@ -8,24 +8,24 @@ change. #9-#11 surfaced after the Phase 8 purpose text was applied and the
 KB rebuilt (this rebuild regenerated the entries with a new structure,
 including a new `normalcy_verdicts` entry, which introduced its own fresh
 errors, the same category of adjacent-station data bleed as #5/#6, just in
-newly generated content). Each one below needs a human check against the
-actual source PDFs: mark it **REAL** (a genuine error in the published
-paper) or **ARTIFACT** (Context flagged something that isn't actually a
-problem, including its own generation errors, which are real bugs but not
-paper errors).
+newly generated content). Each one is marked **REAL** (a genuine error in
+the published paper) or **ARTIFACT** (Context flagged something that isn't
+actually a problem, including its own generation errors, which are real
+bugs but not paper errors).
 
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Real / Artifact
-- [ ] Artifact (KB generation bug, confirmed against dataset)
-- [ ] Artifact (KB generation bug, confirmed against dataset)
-- [ ] Artifact (KB generation bug, confirmed against dataset)
-- [ ] Real / Artifact
+All 11 verified below against the actual extracted PDF text (`eval/paper-text/*.txt`) and/or live `groq_query` against the dataset, on 2026-09-28.
+
+- [x] **1. REAL**, PDF-verified
+- [x] **2. REAL**, PDF-verified
+- [x] **3. REAL**, PDF-verified (same fact as #1)
+- [x] **4. ARTIFACT**, PDF-verified false pairing
+- [x] **5. ARTIFACT**, KB-generation bug, confirmed against PDF
+- [x] **6. ARTIFACT**, KB-generation bug, confirmed against PDF
+- [x] **7. ARTIFACT**, confirmed accurate, not a paper error
+- [x] **8. REAL**, PDF-verified (same fact as #1)
+- [x] **9. ARTIFACT**, KB-generation bug, confirmed against PDF
+- [x] **10. ARTIFACT**, KB-generation bug, confirmed against PDF
+- [x] **11. ARTIFACT**, KB-generation gap, confirmed against PDF
 
 ---
 
@@ -39,6 +39,18 @@ paper errors).
 - Another entry says: **3706 Ω·m** (mislabeled as BMGS, actually Kenpoly)
 
 **Source / page:** Menegbo et al. (2024), Bori Metropolis paper. 2950 Ω·m comes from Figure 2 panel caption + p.3 coordinate table; 3706 Ω·m comes from p.7 Table 1 (summary table), row printed "BMGS bori field".
+
+**PDF verification: REAL.** Confirmed directly from `eval/paper-text/bori.txt`. The paper's own p.3 coordinate table (Table 1, "Location of the VES stations") lists:
+```
+Kenpoly sec school field   7.37207889   4.665453
+BMGS bori field            7.36096      4.67842
+```
+The paper's own p.7 summary table lists:
+```
+BMGS bori field            7.37207889   4.665453   3706   59.3   32.2
+Kenpoly sec school field   7.36096      4.67842    2950   66.5   36.2
+```
+The summary table's "BMGS bori field" row carries the coordinates that the coordinate table assigns to Kenpoly sec school field, and vice versa. The row labels are swapped against the paper's own coordinate table. This is unambiguous and internal to the paper; no external source needed. True BMGS value: 2950 Ω·m. True Kenpoly sec school field value: 3706 Ω·m.
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
@@ -54,6 +66,8 @@ paper errors).
 - Another entry says: **unclassified** (non-monotonic, not A-type)
 
 **Source / page:** Oghonyon et al. (2025), Table 5 (values) and Discussion/Conclusion sections (aquifer designation, curve label). Layer resistivities: 91.2 → 380.2 → 43.25 → 474.3 → 597.1 Ω·m, confirmed non-monotonic (a dip at layer 3) by `agent/curveType.js`'s `deriveCurveType()`, which derives "KHA", not "A".
+
+**PDF verification: REAL.** Confirmed directly from `eval/paper-text/choba.txt`. Table 5 gives exactly 91.2, 380.2, 43.25, 474.3, 597.1 Ω·m. The Discussion section then says, in the same paragraph: *"The resistivity trend is in the form of l1<l2>l3<l4<l5. The resistivity trends observed in Figure 2 follows an A-type curve pattern, defined by progressive increase in resistivity with depth."* The paper states the non-monotonic trend (a drop at layer 3) and calls it "A-type... progressive increase" in the same sentence. This is a direct, internal self-contradiction in the published text, not an inference.
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
@@ -72,11 +86,13 @@ paper errors).
 
 **Resolution:** Saved as an instruction shaping future rebuilds.
 
+**PDF verification: REAL.** Same underlying fact as #1, see there for the exact quoted tables.
+
 **Note:** #1 and #3 both describe the same real-world BMGS/Kenpoly swap. Context raised it twice because three or more entries independently state the fact and it compares pairwise. When verifying against the PDF, one check covers both.
 
 ---
 
-## 4. Kenpoly Convocation Arena vs. Kenpoly sec school field: ⚠ check this one carefully
+## 4. Kenpoly Convocation Arena vs. Kenpoly sec school field: PDF-verified as a false pairing
 
 **Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
 
@@ -87,9 +103,9 @@ paper errors).
 
 **Source / page:** Kenpoly-convocation-arena's own reading: 3488 Ω·m, Figure 2 panel caption. Kenpoly-sec-school-field's true value: 3706 Ω·m, its own Figure 2 panel caption.
 
-**⚠ Why this needs extra scrutiny:** "Kenpoly Convocation Arena" and "Kenpoly sec school field" are two genuinely **different, real stations** in the Bori dataset, each with its own uncontested reading (3488 and 3706 respectively). See `eval/questions.json`'s `bori-kenpoly-convocation-control` question, which the agent answers as a clean, no-conflict station. This Issue's own phrasing juxtaposes them as if they were competing claims about the same fact, purely because both station names contain "Kenpoly." That is exactly the same category of name-similarity confusion documented in `examples/bori-demo.md` and the Phase 4 commit history (the agent itself fabricated a conflict this way for Kenpoly Convocation Arena before being fixed). Worth checking whether this Issue is describing a real paper error, or whether it's Context (or the resolution) conflating two distinct stations the way the agent once did.
+**PDF verification: ARTIFACT.** Confirmed from `eval/paper-text/bori.txt`'s p.7 summary table: `Kenpoly convocation arena field 7.37414778 4.667667 3488 50.2 24.3`, coordinates matching its OWN row in the p.3 coordinate table exactly, no swap involved. "Kenpoly Convocation Arena" and "Kenpoly sec school field" are two genuinely **different, real stations**, each with its own uncontested, correctly-labeled reading (3488 for Convocation Arena, 3706 for sec-school-field once #1's swap is corrected). This Issue paired them purely because both names contain "Kenpoly," the same category of name-similarity confusion documented in `examples/bori-demo.md` (the agent itself fabricated a conflict this way before being fixed). Not a paper error.
 
-**Resolution:** Saved as an instruction shaping future rebuilds.
+**Resolution:** Saved as an instruction shaping future rebuilds. Given the PDF verification above, this instruction should arguably be revisited/removed rather than kept, since it resolved a non-conflict.
 
 ---
 
@@ -102,6 +118,8 @@ paper errors).
 **What the entry said (Kor-road section):** Layer 1: 1.24 m @ 1916 Ω·m | Layer 2: 1.79 m @ 1252 Ω·m | Layer 3 (aquifer): 108 m @ 1658 Ω·m | Layer 4: 581 Ω·m (basement). Correct.
 
 **What the source says (`reading-bori-kor-road`):** Same model, confirmed correct.
+
+**PDF verification: ARTIFACT.** Kor-road's own p.7 summary-table row (`eval/paper-text/bori.txt`): `Kor road 7.379798 4.676532 1658 111 108`, matching its own p.3 coordinates exactly (no swap for this station) and matching `reading-bori-kor-road`'s dataset values exactly (1658 Ω·m, 111 m, 108 m). The paper itself is correct here; the entry's copy-paste error is purely a KB-generation artifact.
 
 **Note:** This one is about the *KB entry's own generated text*, not a paper-transcription error. Kor-road's numbers got copy-pasted under Kenpoly-convocation-arena's heading during entry generation. See #6, the same bug described from the other side.
 
@@ -119,7 +137,7 @@ paper errors).
 
 **What the source says (`reading-bori-kenpoly-convocation-arena`):** Layer 1: 2.5 m @ 1434 Ω·m | Layer 2: 5.42 m @ 1879 Ω·m | Layer 3: 18 m @ 318 Ω·m | Layer 4 (aquifer): 24.3 m @ 3488 Ω·m | Layer 5 (basement): 542 Ω·m. Reported aquifer resistivity 3488 Ω·m at 50.2 m depth.
 
-**Note:** Same underlying bug as #5, the KB entry's own generated content, not a paper error.
+**PDF verification: ARTIFACT.** See #5, same underlying bug (Kor-road's numbers, not Kenpoly Convocation Arena's, per the p.7 table quoted there), the KB entry's own generated content, not a paper error.
 
 **Resolution:** The entry is being updated, saved as an instruction for future rebuilds.
 
@@ -137,7 +155,7 @@ paper errors).
 
 **Source / page:** Nwankwoala et al. (2022), Etche LGA paper, Tables 1-8.
 
-**Note:** This is Context's own false-positive, flagged then confirmed accurate on review. No paper error to verify here, just confirm the 8 names against the paper's own station list if you want a final sanity check.
+**PDF verification: ARTIFACT (confirmed accurate).** `eval/paper-text/etche.txt` line 69: *"...includes Ndashi, Umuokom, Akporku, Okehi, Odufor, Egwi, Ulakwo and Opiro"*, all 8 names present, matching the entry's claim exactly. This is Context's own false-positive, flagged then confirmed accurate on review; no paper error.
 
 ---
 
@@ -152,6 +170,8 @@ paper errors).
 
 **Source / page:** Same underlying fact as #1 and #3, detected a third time on a routine Context re-scan (shown under the entries' display titles, "Bori High-Resistivity Stations" and "Data Inconsistencies," rather than their `path`-style identifiers).
 
+**PDF verification: REAL.** Same underlying fact as #1, see there for the exact quoted tables.
+
 **Resolution:** Kept 2950 Ω·m for BMGS-Bori-Field. The two entries don't actually disagree; the second is explicitly explaining why the swapped 3706 Ω·m value doesn't belong to BMGS, not asserting a different value for it. Resolved as such.
 
 ---
@@ -163,6 +183,8 @@ paper errors).
 > The entry states Bank-road layer 3's cumulative depth is 111-18 m, but the reading shows 97.9-13.8 m (bottom-top cumulative depth).
 
 **Verified live against the dataset** (`groq_query` on `reading-bori-bank-road`, 2026-09-28): layer 2 cumulative depth 13.8 m, layer 3 cumulative depth 97.9 m. Matches the Issue's own "the reading shows" claim exactly. The entry's "111" figure matches nothing in Bank-road's own data; it's Kor-road's own layer 3 cumulative depth (`reading-bori-kor-road`, 111 m exactly). Same category of bug as #5/#6 (an adjacent station's numbers bleeding into a different station's section during entry generation), this time in the `Bori Road-Named Station Readings` entry created by the Phase 8 rebuild.
+
+**PDF verification: ARTIFACT.** `eval/paper-text/bori.txt`'s p.7 summary table: `Bank road 7.36616 4.67171 2594 97.9 84.1`, coordinates matching its own p.3 entry exactly. The paper's own numbers are correct; only the KB entry's generated text was wrong.
 
 **Resolution:** Kept 97.9-13.8 m (the reading's real value).
 
@@ -176,6 +198,8 @@ paper errors).
 
 This is the third time in this project's history that Kenpoly Convocation Arena and Kenpoly sec school field, two different real stations, have been conflated: once by the agent's own code (fixed in Phase 4/5, see `examples/bori-demo.md`), once in Issue #4 above, and now in a newly generated `normalcy_verdicts` entry from the Phase 8 rebuild. The Issue's own description already states the correct resolution.
 
+**PDF verification: ARTIFACT.** Same underlying fact as #4's true resolution: PDF-confirmed (see #1) that Kenpoly sec school field's true value is 3706 Ω·m, and Kenpoly Convocation Arena's own, unrelated true value is 3488 Ω·m. The `normalcy_verdicts` entry's error, not a paper error.
+
 **Resolution:** Kept 3706 Ω·m for Kenpoly sec school field (its own Figure 2 value, confirmed by coordinates). 3488 Ω·m stays correctly assigned to Kenpoly Convocation Arena.
 
 ---
@@ -188,21 +212,25 @@ This is the third time in this project's history that Kenpoly Convocation Arena 
 
 Not a value disagreement; `normalcy_verdicts` simply failed to extract Choba's number during generation. 474.3 Ω·m is confirmed correct throughout this project (`reading-choba-choba-lawntennisfield`, used in every Choba eval question and example).
 
+**PDF verification: ARTIFACT.** `eval/paper-text/choba.txt` Table 5, layer 4: 474.3 Ω·m at 71.78 m depth, exactly matching the dataset. The paper reports this value clearly; the gap is in the `normalcy_verdicts` entry's generation, not the source.
+
 **Resolution:** Kept 474.3 Ω·m.
 
 ---
 
 ## Summary for quick reference
 
-| # | Station(s) | What's in question | Category |
+| # | Station(s) | What's in question | Verdict |
 |---|---|---|---|
-| 1, 3, 8 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | Real (paper transcription error) |
-| 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | Real (paper labeling error) |
-| 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | ⚠ possibly a false pairing of two different stations | Needs your review |
-| 5, 6, 9 | Kor-road / Kenpoly Convocation Arena / Bank-road | KB entry's own generated text had a copy-paste error | KB-build bug, not a paper error |
-| 7 | Etche (8 stations) | False positive, already confirmed accurate | Not a real conflict |
-| 8 | BMGS Bori Field / Kenpoly sec school field | Same swap as #1/#3, re-surfaced on a routine re-scan; entries didn't actually disagree | Artifact of re-detection, not a new error |
-| 10 | Kenpoly Convocation Arena vs Kenpoly sec school field | Same station-name confusion as #4, this time in a freshly generated entry | KB-build bug, verified against dataset |
-| 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | KB-build gap, not a real conflict |
+| 1, 3, 8 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | **REAL** (paper transcription error, PDF-verified) |
+| 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | **REAL** (paper labeling error, PDF-verified) |
+| 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | A false pairing of two different, correctly-labeled stations | **ARTIFACT**, PDF-verified |
+| 5, 6, 9 | Kor-road / Kenpoly Convocation Arena / Bank-road | KB entry's own generated text had a copy-paste error | **ARTIFACT** (KB-build bug, PDF-verified as not a paper error) |
+| 7 | Etche (8 stations) | False positive, confirmed accurate | **ARTIFACT** (not a real conflict, PDF-verified) |
+| 8 | BMGS Bori Field / Kenpoly sec school field | Same swap as #1/#3, re-surfaced on a routine re-scan | **REAL**, PDF-verified (same underlying fact as #1) |
+| 10 | Kenpoly Convocation Arena vs Kenpoly sec school field | Same station-name confusion as #4, in a freshly generated entry | **ARTIFACT** (KB-build bug, PDF-verified as not a paper error) |
+| 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | **ARTIFACT** (KB-build gap, PDF-verified as not a paper error) |
+
+**Totals: 3 real paper errors** (the Bori table swap and the Choba curve-type mislabel, each detected multiple times under different entry pairings), **8 artifacts** (1 false pairing of two distinct correct stations, 1 confirmed-accurate false positive, and 5 KB-generation bugs introduced by entry regeneration, not the source papers).
 
 **Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. #5, #6, #9, #10, and #11 are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent.
