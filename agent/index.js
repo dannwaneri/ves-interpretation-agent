@@ -182,12 +182,22 @@ function tokenOverlap(a, b) {
 // Overwrites headline/explanation with the fixed-template statement rather
 // than trusting the model to word this consistently -- see depthArithmetic.js
 // for why prompt instructions alone weren't reliable enough.
+//
+// Only fires when there's a real signal the question is ABOUT the matched
+// station: either it's the only depth check in scope (an unambiguous single
+// candidate), or the question's own wording overlaps that station's name.
+// Without this gate, a broad, unscoped question (e.g. "is 1000 ohm-m normal
+// for Etche?", no station named) that happens to return a site with several
+// depth-arithmetic issues would get silently hijacked into reporting on
+// whichever one wins an essentially random tie-break, ignoring the actual
+// question and the number the reader asked about. Found via a held-out test.
 function applyDepthInconsistencyOverride(answer, question, depthChecks) {
   if (depthChecks.length === 0) return
-  const check =
-    depthChecks.length === 1
-      ? depthChecks[0]
-      : depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+  let check = depthChecks[0]
+  if (depthChecks.length > 1) {
+    check = depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+    if (tokenOverlap(question, check.station) === 0) return
+  }
 
   answer.verdict = 'anomalous'
   answer.headline = `No, ${check.station}'s printed layer ${check.layerIndex} depth and thickness are internally inconsistent.`
@@ -275,7 +285,11 @@ async function main() {
 if (require.main === module) {
   main().catch((e) => {
     console.error('FATAL:', e.message)
-    process.exit(1)
+    // process.exitCode, not process.exit(): forcing an immediate exit while
+    // a fetch's underlying handle hasn't finished closing crashes on
+    // Windows with a libuv assertion (src/win/async.c). Setting exitCode
+    // lets the event loop drain and exit naturally with the same status.
+    process.exitCode = 1
   })
 }
 

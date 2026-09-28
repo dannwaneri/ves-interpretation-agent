@@ -116,6 +116,7 @@ function applyTableSwapOverride(answer, question, swapChecks) {
   let check = swapChecks[0]
   if (swapChecks.length > 1) {
     check = swapChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+    if (tokenOverlap(question, check.station) === 0) return
   }
   if (check.trustedValue === null) return
 
@@ -136,13 +137,18 @@ function applyTableSwapOverride(answer, question, swapChecks) {
 }
 
 // Same fixed-template override as agent/index.js -- see depthArithmetic.js
-// for why prompt instructions alone weren't reliable enough for this.
+// and the relevance-gating comment on the equivalent function in
+// agent/index.js for why prompt instructions alone weren't reliable enough
+// for this, and why an ungated override on an ambiguous question silently
+// hijacked the answer with an unrelated station's finding (found via a
+// held-out test).
 function applyDepthInconsistencyOverride(answer, question, depthChecks) {
   if (depthChecks.length === 0) return
-  const check =
-    depthChecks.length === 1
-      ? depthChecks[0]
-      : depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+  let check = depthChecks[0]
+  if (depthChecks.length > 1) {
+    check = depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+    if (tokenOverlap(question, check.station) === 0) return
+  }
 
   answer.verdict = 'anomalous'
   answer.headline = `No, ${check.station}'s printed layer ${check.layerIndex} depth and thickness are internally inconsistent.`
