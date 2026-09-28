@@ -138,6 +138,8 @@ DEPTH ARITHMETIC CHECK block below is computed directly in code. If it lists any
 
 Do not generalize to "all stations" or "every reading at this site" unless you have personally checked every row in the GROQ DATA block and they all actually support that claim. A Knowledge Base entry titled something like "high resistivity stations" describes only the entries it contains, a curated subset, not the whole site -- treat its scope as narrow even if its prose reads as a general statement. If you're not certain a claim holds for every station, say it about the specific reading in question instead.
 
+If the question compares two or more numbers (e.g. "which site is higher"), work out the actual numeric comparison silently before writing anything, then state only the final, already-checked conclusion. Never write visible reasoning, self-correction, or phrases like "wait," "let me correct," or "actually" into "headline" or "explanation" -- those fields are the final answer, not a scratchpad. If your first instinct about which number is larger turns out wrong, fix it before you write the JSON, not inside it.
+
 Write for a general audience with NO geology background. Assume the reader has never heard of resistivity or VES surveys. Every sentence must be understandable on first read. If you need a technical term (like "resistivity" or the unit "ohm-m"), briefly explain it in plain words the first time you use it, in parentheses.
 
 Reply with ONLY a single JSON object (no markdown fences, no prose outside it), in exactly this shape:
@@ -164,6 +166,33 @@ Set "conflict" to null if the GROQ data shows no disagreement. If there isn't en
   return JSON.parse(match[0])
 }
 
+// Comparison claims (e.g. "which site is higher") aren't a closed, code-
+// computable class the way curve type / table swap / depth arithmetic are,
+// so there's no fixed check to hand the model as ground truth here. What IS
+// catchable: a held-out test found the model visibly second-guessing itself
+// mid-answer ("...2200.9 ohm-m -- wait, no: 2200.9 is higher than 1109.
+// Let's correct that..."), landing on a correct explanation while the
+// headline, generated earlier, stayed wrong. That visible self-correction
+// is itself a reliable signal the first attempt wasn't trustworthy -- one
+// bounded retry, same philosophy as the GROQ-query retry.
+const SELF_CORRECTION_PATTERN = /\bwait[,.]?\s|let'?s correct|let me (re)?correct|actually,? (that'?s|i'?m|this is) (wrong|incorrect|backwards)/i
+
+function hasVisibleSelfCorrection(answer) {
+  return SELF_CORRECTION_PATTERN.test(`${answer.headline || ''} ${answer.explanation || ''}`)
+}
+
+async function synthesizeChecked(query, entriesText, groqRows, curveChecks, depthChecks) {
+  let answer = await synthesize(query, entriesText, groqRows, curveChecks, depthChecks)
+  if (hasVisibleSelfCorrection(answer)) {
+    console.error('[agent] synthesized answer contained visible self-correction text, retrying once')
+    answer = await synthesize(query, entriesText, groqRows, curveChecks, depthChecks)
+    if (hasVisibleSelfCorrection(answer)) {
+      console.error('[agent] retry also contained visible self-correction text -- shipping as-is, flagged for review')
+    }
+  }
+  return answer
+}
+
 function normalize(s) {
   return String(s)
     .toLowerCase()
@@ -177,6 +206,53 @@ function tokenOverlap(a, b) {
   const tokensA = new Set(normalize(a).split(' ').filter((t) => t.length > 2))
   const tokensB = normalize(b).split(' ').filter((t) => t.length > 2)
   return tokensB.filter((t) => tokensA.has(t)).length
+}
+
+// The self-correction retry above catches the model visibly doubting
+// itself, but a held-out test showed it fails silently just as often: the
+// headline flatly claims the wrong direction ("Maakoro-street has higher
+// resistivity than Akpoku") while the explanation, computed later, gets it
+// right (1109 vs 2201 -- Akpoku is actually higher). No retry trigger fires
+// because there's no self-correction text to detect. Comparison claims
+// aren't a closed class the way curve type / table swap / depth arithmetic
+// are, so there's no pre-computed check to hand the model -- but the
+// headline's own claimed direction can be parsed and checked against the
+// GROQ data directly, and fixed in code if it's wrong, rather than hoping a
+// retry lands on the right answer.
+const COMPARISON_PATTERN = /^(.+?)\s+(?:has|shows?|reports?)\s+(higher|greater|more|lower|less|smaller)\b.*?\bthan\s+(.+?)(?:[:.,(]|$)/i
+
+function fixComparisonClaim(answer, groqRows) {
+  const m = (answer.headline || '').match(COMPARISON_PATTERN)
+  if (!m) return
+  const [, subjectRaw, direction, objectRaw] = m
+
+  const findRow = (raw) => {
+    let best = null
+    let bestScore = 0
+    for (const r of groqRows) {
+      if (typeof r.reportedAquiferResistivityOhmM !== 'number') continue
+      const score = tokenOverlap(raw, r.station)
+      if (score > bestScore) {
+        bestScore = score
+        best = r
+      }
+    }
+    return best
+  }
+
+  const subjectRow = findRow(subjectRaw)
+  const objectRow = findRow(objectRaw)
+  if (!subjectRow || !objectRow || subjectRow.station === objectRow.station) return
+
+  const subjectVal = subjectRow.reportedAquiferResistivityOhmM
+  const objectVal = objectRow.reportedAquiferResistivityOhmM
+  const claimsSubjectHigher = /higher|greater|more/i.test(direction)
+  const subjectActuallyHigher = subjectVal > objectVal
+  if (claimsSubjectHigher === subjectActuallyHigher) return
+
+  console.error(`[agent] correcting a backwards comparison claim in the headline: "${answer.headline}"`)
+  const verb = claimsSubjectHigher ? 'higher' : 'lower'
+  answer.headline = `${objectRow.station} has ${verb} aquifer resistivity than ${subjectRow.station} (${objectVal} ohm-m vs. ${subjectVal} ohm-m).`
 }
 
 // Overwrites headline/explanation with the fixed-template statement rather
@@ -228,7 +304,8 @@ async function ask(query) {
   }
 
   const entriesText = await readEntries(paths)
-  const answer = await synthesize(query, entriesText, groqData.rows, curveChecks, depthChecks)
+  const answer = await synthesizeChecked(query, entriesText, groqData.rows, curveChecks, depthChecks)
+  fixComparisonClaim(answer, groqData.rows)
   enforceGrounding(answer, groqData.rows, curveChecks)
   applyDepthInconsistencyOverride(answer, query, depthChecks)
 

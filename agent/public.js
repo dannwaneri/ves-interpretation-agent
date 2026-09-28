@@ -62,6 +62,8 @@ DEPTH ARITHMETIC CHECK is computed directly in code. If it lists any entries, co
 
 Write for a general audience with NO geology background. Explain any technical term (like "resistivity" or "ohm-m") in plain words the first time you use it.
 
+If the question compares two or more numbers (e.g. "which site is higher"), work out the actual numeric comparison silently before writing anything, then state only the final, already-checked conclusion. Never write visible reasoning, self-correction, or phrases like "wait," "let me correct," or "actually" into "headline" or "explanation" -- those fields are the final answer, not a scratchpad.
+
 Reply with ONLY a single JSON object (no markdown fences, no prose outside it), in exactly this shape:
 {
   "verdict": "normal" | "anomalous" | "uncertain",
@@ -86,6 +88,27 @@ Set "conflict" to null if the GROQ data shows no disagreement. Every value in "n
   return JSON.parse(match[0])
 }
 
+// Same bounded-retry safety net as agent/index.js -- see there for why
+// (visible self-correction text found in a held-out test is a reliable
+// signal the first attempt wasn't trustworthy).
+const SELF_CORRECTION_PATTERN = /\bwait[,.]?\s|let'?s correct|let me (re)?correct|actually,? (that'?s|i'?m|this is) (wrong|incorrect|backwards)/i
+
+function hasVisibleSelfCorrection(answer) {
+  return SELF_CORRECTION_PATTERN.test(`${answer.headline || ''} ${answer.explanation || ''}`)
+}
+
+async function publicSynthesizeChecked(query, groqRows, curveChecks, swapChecks, depthChecks) {
+  let answer = await publicSynthesize(query, groqRows, curveChecks, swapChecks, depthChecks)
+  if (hasVisibleSelfCorrection(answer)) {
+    console.error('[agent] synthesized answer contained visible self-correction text, retrying once')
+    answer = await publicSynthesize(query, groqRows, curveChecks, swapChecks, depthChecks)
+    if (hasVisibleSelfCorrection(answer)) {
+      console.error('[agent] retry also contained visible self-correction text -- shipping as-is, flagged for review')
+    }
+  }
+  return answer
+}
+
 function normalize(s) {
   return String(s)
     .toLowerCase()
@@ -99,6 +122,46 @@ function tokenOverlap(a, b) {
   const tokensA = new Set(normalize(a).split(' ').filter((t) => t.length > 2))
   const tokensB = normalize(b).split(' ').filter((t) => t.length > 2)
   return tokensB.filter((t) => tokensA.has(t)).length
+}
+
+// Same comparison-claim fix as agent/index.js -- see there for why (a held-
+// out test found the headline flatly wrong on 2/3 repeated runs even after
+// the retry-on-visible-self-correction fix, since the error is often silent
+// rather than visibly second-guessed).
+const COMPARISON_PATTERN = /^(.+?)\s+(?:has|shows?|reports?)\s+(higher|greater|more|lower|less|smaller)\b.*?\bthan\s+(.+?)(?:[:.,(]|$)/i
+
+function fixComparisonClaim(answer, groqRows) {
+  const m = (answer.headline || '').match(COMPARISON_PATTERN)
+  if (!m) return
+  const [, subjectRaw, direction, objectRaw] = m
+
+  const findRow = (raw) => {
+    let best = null
+    let bestScore = 0
+    for (const r of groqRows) {
+      if (typeof r.reportedAquiferResistivityOhmM !== 'number') continue
+      const score = tokenOverlap(raw, r.station)
+      if (score > bestScore) {
+        bestScore = score
+        best = r
+      }
+    }
+    return best
+  }
+
+  const subjectRow = findRow(subjectRaw)
+  const objectRow = findRow(objectRaw)
+  if (!subjectRow || !objectRow || subjectRow.station === objectRow.station) return
+
+  const subjectVal = subjectRow.reportedAquiferResistivityOhmM
+  const objectVal = objectRow.reportedAquiferResistivityOhmM
+  const claimsSubjectHigher = /higher|greater|more/i.test(direction)
+  const subjectActuallyHigher = subjectVal > objectVal
+  if (claimsSubjectHigher === subjectActuallyHigher) return
+
+  console.error(`[agent] correcting a backwards comparison claim in the headline: "${answer.headline}"`)
+  const verb = claimsSubjectHigher ? 'higher' : 'lower'
+  answer.headline = `${objectRow.station} has ${verb} aquifer resistivity than ${subjectRow.station} (${objectVal} ohm-m vs. ${subjectVal} ohm-m).`
 }
 
 function claimedOhmM(question) {
@@ -162,7 +225,8 @@ async function publicAsk(query) {
   const curveChecks = curveTypeChecks(groqData.rows)
   const swapChecks = tableSwapChecks(groqData.rows)
   const depthChecks = depthArithmeticChecks(groqData.rows)
-  const answer = await publicSynthesize(query, groqData.rows, curveChecks, swapChecks, depthChecks)
+  const answer = await publicSynthesizeChecked(query, groqData.rows, curveChecks, swapChecks, depthChecks)
+  fixComparisonClaim(answer, groqData.rows)
   applyTableSwapOverride(answer, query, swapChecks)
   applyDepthInconsistencyOverride(answer, query, depthChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
