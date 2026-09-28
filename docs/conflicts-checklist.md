@@ -1,13 +1,17 @@
 # Conflicts checklist (Phase 6)
 
-All 7 conflicts Sanity Context found and resolved while building the VES
-Interpretation Knowledge Base, pulled from Context → VES Interpretation KB →
-Issues → Resolved (7), on 2026-09-26. Each one below needs a human check
-against the actual source PDFs: mark it **REAL** (a genuine error in the
-published paper) or **ARTIFACT** (Context flagged something that isn't
-actually a problem, e.g. two entries describing the same fact in different
-words).
+All 8 conflicts Sanity Context has found and resolved while building the VES
+Interpretation Knowledge Base. The first 7 were pulled from Context → VES
+Interpretation KB → Issues → Resolved, on 2026-09-26. An 8th (#8 below)
+surfaced later, resolved on 2026-09-28, from a routine Context re-scan, not
+from a Phase 8 rebuild (the Phase 8 purpose/Instruction changes were still
+pending in this repo when it appeared). Each one below needs a human check
+against the actual source PDFs: mark it
+**REAL** (a genuine error in the published paper) or **ARTIFACT** (Context
+flagged something that isn't actually a problem, e.g. two entries describing
+the same fact in different words).
 
+- [ ] Real / Artifact
 - [ ] Real / Artifact
 - [ ] Real / Artifact
 - [ ] Real / Artifact
@@ -130,12 +134,28 @@ words).
 
 ---
 
+## 8. BMGS Bori Field resistivity swap (via Depth Arithmetic & Station Label Errors, post-rebuild)
+
+**Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
+
+> The Bori High-Resistivity Stations entry reports BMGS-bori-field aquifer resistivity as 2950 Ω·m, but the Data Inconsistencies entry states that the paper's summary table row labeled 'BMGS bori field' actually carries data for Kenpoly (3706 Ω·m), while the row labeled 'Kenpoly sec school field' carries BMGS bori field's actual data (2950 Ω·m).
+
+- One entry says (Bori High-Resistivity Aquifer Stations): **BMGS-bori-field aquifer resistivity is 2950 Ω·m.**
+- Another entry says (Depth Arithmetic & Station Label Errors): **The paper's summary table row labeled 'BMGS bori field' contains 3706 Ω·m, but this is actually Kenpoly's data due to a label swap.**
+
+**Source / page:** Same underlying fact as #1 and #3, detected a third time on a routine Context re-scan (shown under the entries' display titles, "Bori High-Resistivity Stations" and "Data Inconsistencies," rather than their `path`-style identifiers).
+
+**Resolution:** Kept 2950 Ω·m for BMGS-Bori-Field. The two entries don't actually disagree; the second is explicitly explaining why the swapped 3706 Ω·m value doesn't belong to BMGS, not asserting a different value for it. Resolved as such.
+
+---
+
 ## Summary for quick reference
 
 | # | Station(s) | What's in question | Category |
 |---|---|---|---|
-| 1, 3 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | Real (paper transcription error) |
+| 1, 3, 8 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | Real (paper transcription error) |
 | 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | Real (paper labeling error) |
 | 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | ⚠ possibly a false pairing of two different stations | Needs your review |
 | 5, 6 | Kor-road / Kenpoly Convocation Arena | KB entry's own generated text had a copy-paste error | KB-build bug, not a paper error |
 | 7 | Etche (8 stations) | False positive, already confirmed accurate | Not a real conflict |
+| 8 | BMGS Bori Field / Kenpoly sec school field | Same swap as #1/#3, re-surfaced on a routine re-scan; entries didn't actually disagree | Artifact of re-detection, not a new error |
