@@ -8,7 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const {parse, evaluateSync} = require('groq-js')
 const {checkLabel} = require('./curveType.js')
-const {checkDepthArithmetic} = require('./depthArithmetic.js')
+const {checkDepthArithmetic, depthInconsistencyStatement} = require('./depthArithmetic.js')
 const {resolveSiteFromCatalog, buildSiteQuery} = require('./groq.js')
 
 const SNAPSHOT_PATH = path.join(__dirname, 'offline-snapshot.ndjson')
@@ -155,7 +155,7 @@ function ruleBasedAnswer(question, rows) {
       return {
         verdict: 'anomalous',
         station: row.station,
-        summary: `Layer ${depthCheck.layerIndex}'s printed depth (${depthCheck.printedCumulativeDepthM} m) and printed thickness (${depthCheck.printedThicknessM} m) do not reconcile with each other: prior depth ${depthCheck.priorCumulativeDepthM} m + printed thickness = ${depthCheck.impliedDepthIfThicknessCorrect} m, not the printed depth. This does not identify which of the two printed numbers is wrong, only that they disagree.`,
+        summary: depthInconsistencyStatement(depthCheck),
         source: citation(row),
         numbers: {
           resistivity: row.reportedAquiferResistivityOhmM,

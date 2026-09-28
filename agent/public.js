@@ -10,7 +10,7 @@ const {qwen} = require('./qwen.js')
 const {resolveSiteFromCatalog, buildSiteQuery} = require('./groq.js')
 const {curveTypeChecks} = require('./curveType.js')
 const {tableSwapChecks} = require('./tableSwap.js')
-const {depthArithmeticChecks} = require('./depthArithmetic.js')
+const {depthArithmeticChecks, depthInconsistencyStatement} = require('./depthArithmetic.js')
 const {enforceGrounding} = require('./grounding.js')
 
 const API_VERSION = 'v2024-01-01'
@@ -58,7 +58,7 @@ Do NOT build a "conflict" out of a different station's numbers, even one with a 
 
 CURVE TYPE CHECK is computed directly from the layer numbers in code. For any station where "matches" is false, the paper's own curveTypePublished label does not match its own layer values -- that is itself a source disagreement. Use "derived" as the trusted claim and "published" as the claim to distrust.
 
-DEPTH ARITHMETIC CHECK is computed directly in code. Each entry means that layer's printed depth and printed thickness do not reconcile with each other. There is no way to know which of the two printed numbers is the error, only that they disagree. Do NOT put this in the "conflict" object. Do NOT say "the depth is wrong," "the thickness is wrong," "too shallow," "too deep," or "should be X, but the paper says Y," since those imply a winner. In "explanation," state BOTH readings symmetrically using the check's own fields (impliedDepthIfThicknessCorrect and impliedThicknessIfDepthCorrect), and set verdict to "anomalous" because the printed data can't be fully trusted, not because either number is confirmed wrong.
+DEPTH ARITHMETIC CHECK is computed directly in code. If it lists any entries, code will overwrite your "headline" and "explanation" afterward with a fixed statement of the inconsistency, so don't spend effort wording that part carefully. Just set verdict to "anomalous" and leave "conflict" null for this station.
 
 Write for a general audience with NO geology background. Explain any technical term (like "resistivity" or "ohm-m") in plain words the first time you use it.
 
@@ -135,6 +135,21 @@ function applyTableSwapOverride(answer, question, swapChecks) {
   }
 }
 
+// Same fixed-template override as agent/index.js -- see depthArithmetic.js
+// for why prompt instructions alone weren't reliable enough for this.
+function applyDepthInconsistencyOverride(answer, question, depthChecks) {
+  if (depthChecks.length === 0) return
+  const check =
+    depthChecks.length === 1
+      ? depthChecks[0]
+      : depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+
+  answer.verdict = 'anomalous'
+  answer.headline = `No, ${check.station}'s printed layer ${check.layerIndex} depth and thickness are internally inconsistent.`
+  answer.explanation = depthInconsistencyStatement(check)
+  answer.conflict = null
+}
+
 async function publicAsk(query) {
   console.error('[agent] --public mode: no Sanity token, no Knowledge Base access. Requires the dataset to be public.')
   const groqData = await getPublicGroqData(query)
@@ -143,6 +158,7 @@ async function publicAsk(query) {
   const depthChecks = depthArithmeticChecks(groqData.rows)
   const answer = await publicSynthesize(query, groqData.rows, curveChecks, swapChecks, depthChecks)
   applyTableSwapOverride(answer, query, swapChecks)
+  applyDepthInconsistencyOverride(answer, query, depthChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
   answer.groqQuery = groqData.query
   answer.documentIds = groqData.rows.map((r) => r._id)

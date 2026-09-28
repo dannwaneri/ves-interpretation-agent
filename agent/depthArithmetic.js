@@ -3,12 +3,20 @@
 // cumulative depth plus this layer's thickness. A mismatch means the
 // printed depth and the printed thickness for that layer don't reconcile
 // with each other -- it does NOT identify which of the two printed numbers
-// is the error. For Egwi (Etche), the paper's own Figure 2 narrative text
-// repeats both the printed thickness (~37.95 m) and the printed depth
-// (37.25 m) independently of Table 1, so this is a real, repeated
-// inconsistency in the published paper, not a single isolated typo one
-// value can be confidently blamed for. Report both readings; let a human
-// with the raw field data decide which one is right, if either.
+// is the error.
+//
+// For Egwi (Etche), the paper's own Figure 2 narrative text repeats both
+// the printed thickness (~37.95 m) and the printed depth (37.25 m). That
+// does NOT prove either number is correct -- the prose plausibly just
+// copies Table 1's own values, so it's one source stated twice, not two
+// independent measurements. What it does establish is that the
+// inconsistency is in the authors' own reported values, not a single
+// isolated print/OCR typo in one table cell. Layers 1-3 for the same
+// station reconcile to within rounding using either source (Table 1 or the
+// prose), confirming this check is exact, not noisy -- only layer 4 fails.
+// Resolving which number (if either) is actually wrong would need the raw
+// field data (AB/2 spacing vs. apparent resistivity) to re-run the
+// inversion; that's out of scope here. Report both readings; do not guess.
 //
 // Tolerance is deliberately generous, not tight: published tables round
 // thickness/depth to 1-3 significant digits, so ordinary rounding alone can
@@ -54,6 +62,23 @@ function checkDepthArithmetic(reading) {
   return {station: reading.station, matches: true}
 }
 
+// Fixed-template statement, generated in code, not the model. The prompt
+// alone was tried first and, even after two rounds of tightening, still
+// produced runs that leaned toward calling one specific number the error --
+// an LLM will not reliably repeat exact wording it wasn't forced to. This
+// matches the rest of the design (code decides facts, the model explains
+// them) and removes the wording variation entirely rather than reducing it.
+function depthInconsistencyStatement(check) {
+  return (
+    `${check.station}, layer ${check.layerIndex}: the printed depth (${check.printedCumulativeDepthM} m) ` +
+    `and the printed thickness (${check.printedThicknessM} m) do not reconcile with the prior layer's depth ` +
+    `(${check.priorCumulativeDepthM} m). If the thickness is correct, the depth should be ` +
+    `${check.impliedDepthIfThicknessCorrect} m. If the depth is correct, the thickness should be ` +
+    `${check.impliedThicknessIfDepthCorrect} m. The paper does not give enough information to determine ` +
+    `which printed number is wrong.`
+  )
+}
+
 // Same pattern as curveType.js's curveTypeChecks(): computed in code and
 // handed to the model as a fact to narrate carefully, not a judgment call
 // to make itself (which produced a "the depth is wrong" claim when left
@@ -71,4 +96,4 @@ function depthArithmeticChecks(rows) {
     .filter((c) => c.matches === false)
 }
 
-module.exports = {checkDepthArithmetic, depthArithmeticChecks}
+module.exports = {checkDepthArithmetic, depthArithmeticChecks, depthInconsistencyStatement}

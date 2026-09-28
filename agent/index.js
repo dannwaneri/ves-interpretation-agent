@@ -2,7 +2,7 @@ const {env, mcpCall} = require('./mcp.js')
 const {qwen} = require('./qwen.js')
 const groq = require('./groq.js')
 const {curveTypeChecks} = require('./curveType.js')
-const {depthArithmeticChecks} = require('./depthArithmetic.js')
+const {depthArithmeticChecks, depthInconsistencyStatement} = require('./depthArithmetic.js')
 const {enforceGrounding} = require('./grounding.js')
 
 const KB_PATH_LIMIT = 20
@@ -134,7 +134,7 @@ Do NOT build a "conflict" out of a different station's numbers, even one with a 
 
 CURVE TYPE CHECK block below is computed directly from the layer numbers in code, not read from prose and not something you should re-derive yourself. For any station where "matches" is false, the paper's own curveTypePublished label does not match what its own layer values actually do -- that is itself a source disagreement (a label contradicting its own data). Use "derived" as the trusted claim and "published" as the claim to distrust, and explain why using the specific layer where the trend breaks (read the resistivity values in order from the GROQ DATA block to name it, e.g. "the third layer drops instead of rising"). Only raise this as the "conflict" if the question is actually about that station's curve type.
 
-DEPTH ARITHMETIC CHECK block below is computed directly in code. Each entry means that layer's printed depth and printed thickness do not reconcile with each other (prior depth + thickness != printed depth). This is DIFFERENT from the curve-type and table-swap cases: there is no way to determine which of the two printed numbers is the error, only that they disagree. Do NOT put this in the "conflict" object (which requires naming a trusted claim). Do NOT say "the depth is wrong," "the thickness is wrong," "too shallow," "too deep," or use "should be X, but the paper says Y" phrasing, since all of those imply one number is trusted over the other. Instead, in "explanation," state BOTH readings symmetrically using the check's own fields: "if the printed thickness is right, the depth should be impliedDepthIfThicknessCorrect" AND "if the printed depth is right, the thickness should be impliedThicknessIfDepthCorrect" -- give both, not just one, and set verdict to "anomalous" because the printed data can't be fully trusted, not because you've concluded either number is definitely wrong.
+DEPTH ARITHMETIC CHECK block below is computed directly in code. If it lists any entries, code will overwrite your "headline" and "explanation" afterward with a fixed statement of the inconsistency, so don't spend effort wording that part carefully. Just set verdict to "anomalous" and leave "conflict" null for this station (the check is not a two-source conflict, it's one paper's own numbers not adding up).
 
 Do not generalize to "all stations" or "every reading at this site" unless you have personally checked every row in the GROQ DATA block and they all actually support that claim. A Knowledge Base entry titled something like "high resistivity stations" describes only the entries it contains, a curated subset, not the whole site -- treat its scope as narrow even if its prose reads as a general statement. If you're not certain a claim holds for every station, say it about the specific reading in question instead.
 
@@ -164,6 +164,37 @@ Set "conflict" to null if the GROQ data shows no disagreement. If there isn't en
   return JSON.parse(match[0])
 }
 
+function normalize(s) {
+  return String(s)
+    .toLowerCase()
+    .replace(/[-_]/g, ' ')
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function tokenOverlap(a, b) {
+  const tokensA = new Set(normalize(a).split(' ').filter((t) => t.length > 2))
+  const tokensB = normalize(b).split(' ').filter((t) => t.length > 2)
+  return tokensB.filter((t) => tokensA.has(t)).length
+}
+
+// Overwrites headline/explanation with the fixed-template statement rather
+// than trusting the model to word this consistently -- see depthArithmetic.js
+// for why prompt instructions alone weren't reliable enough.
+function applyDepthInconsistencyOverride(answer, question, depthChecks) {
+  if (depthChecks.length === 0) return
+  const check =
+    depthChecks.length === 1
+      ? depthChecks[0]
+      : depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
+
+  answer.verdict = 'anomalous'
+  answer.headline = `No, ${check.station}'s printed layer ${check.layerIndex} depth and thickness are internally inconsistent.`
+  answer.explanation = depthInconsistencyStatement(check)
+  answer.conflict = null
+}
+
 async function ask(query) {
   const [kbOutline, groqData] = await Promise.all([kbInitialContext(), getGroqData(query)])
 
@@ -189,6 +220,7 @@ async function ask(query) {
   const entriesText = await readEntries(paths)
   const answer = await synthesize(query, entriesText, groqData.rows, curveChecks, depthChecks)
   enforceGrounding(answer, groqData.rows, curveChecks)
+  applyDepthInconsistencyOverride(answer, query, depthChecks)
 
   answer.groqQuery = groqData.query
   answer.documentIds = groqData.rows.map((r) => r._id)
