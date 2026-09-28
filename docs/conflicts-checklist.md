@@ -1,15 +1,18 @@
 # Conflicts checklist (Phase 6)
 
-All 8 conflicts Sanity Context has found and resolved while building the VES
-Interpretation Knowledge Base. The first 7 were pulled from Context → VES
-Interpretation KB → Issues → Resolved, on 2026-09-26. An 8th (#8 below)
-surfaced later, resolved on 2026-09-28, from a routine Context re-scan, not
-from a Phase 8 rebuild (the Phase 8 purpose/Instruction changes were still
-pending in this repo when it appeared). Each one below needs a human check
-against the actual source PDFs: mark it
-**REAL** (a genuine error in the published paper) or **ARTIFACT** (Context
-flagged something that isn't actually a problem, e.g. two entries describing
-the same fact in different words).
+All 11 conflicts Sanity Context has found and resolved while building the
+VES Interpretation Knowledge Base. The first 7 were pulled from Context →
+VES Interpretation KB → Issues → Resolved, on 2026-09-26. An 8th (#8 below)
+surfaced from a routine Context re-scan on 2026-09-28, before any Phase 8
+change. #9-#11 surfaced after the Phase 8 purpose text was applied and the
+KB rebuilt (this rebuild regenerated the entries with a new structure,
+including a new `normalcy_verdicts` entry, which introduced its own fresh
+errors, the same category of adjacent-station data bleed as #5/#6, just in
+newly generated content). Each one below needs a human check against the
+actual source PDFs: mark it **REAL** (a genuine error in the published
+paper) or **ARTIFACT** (Context flagged something that isn't actually a
+problem, including its own generation errors, which are real bugs but not
+paper errors).
 
 - [ ] Real / Artifact
 - [ ] Real / Artifact
@@ -18,6 +21,10 @@ the same fact in different words).
 - [ ] Real / Artifact
 - [ ] Real / Artifact
 - [ ] Real / Artifact
+- [ ] Real / Artifact
+- [ ] Artifact (KB generation bug, confirmed against dataset)
+- [ ] Artifact (KB generation bug, confirmed against dataset)
+- [ ] Artifact (KB generation bug, confirmed against dataset)
 - [ ] Real / Artifact
 
 ---
@@ -149,6 +156,42 @@ the same fact in different words).
 
 ---
 
+## 9. Bank-road layer 3 depth: Kor-road's number bled into a newly generated entry
+
+**Scope:** Bori Road-Named Station Readings entry | **Kind:** Conflict | **Severity:** Critical
+
+> The entry states Bank-road layer 3's cumulative depth is 111-18 m, but the reading shows 97.9-13.8 m (bottom-top cumulative depth).
+
+**Verified live against the dataset** (`groq_query` on `reading-bori-bank-road`, 2026-09-28): layer 2 cumulative depth 13.8 m, layer 3 cumulative depth 97.9 m. Matches the Issue's own "the reading shows" claim exactly. The entry's "111" figure matches nothing in Bank-road's own data; it's Kor-road's own layer 3 cumulative depth (`reading-bori-kor-road`, 111 m exactly). Same category of bug as #5/#6 (an adjacent station's numbers bleeding into a different station's section during entry generation), this time in the `Bori Road-Named Station Readings` entry created by the Phase 8 rebuild.
+
+**Resolution:** Kept 97.9-13.8 m (the reading's real value).
+
+---
+
+## 10. Kenpoly sec school field resistivity: reassigned to the wrong station again
+
+**Scope:** Aquifer Resistivity Normalcy Verdicts by Site entry (`normalcy_verdicts`) | **Kind:** Conflict | **Severity:** Critical
+
+> The normalcy_verdicts entry states Kenpoly sec school field's aquifer resistivity is 3488 Ω·m, but the cited Menegbo et al. (2024) paper shows Kenpoly sec school field is 3706 Ω·m (from Figure 2, confirmed by coordinates). The 3488 Ω·m value actually belongs to Kenpoly Convocation Arena, a separate station.
+
+This is the third time in this project's history that Kenpoly Convocation Arena and Kenpoly sec school field, two different real stations, have been conflated: once by the agent's own code (fixed in Phase 4/5, see `examples/bori-demo.md`), once in Issue #4 above, and now in a newly generated `normalcy_verdicts` entry from the Phase 8 rebuild. The Issue's own description already states the correct resolution.
+
+**Resolution:** Kept 3706 Ω·m for Kenpoly sec school field (its own Figure 2 value, confirmed by coordinates). 3488 Ω·m stays correctly assigned to Kenpoly Convocation Arena.
+
+---
+
+## 11. Choba resistivity: a gap in the new entry, not a real competing value
+
+**Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
+
+> The Choba station_readings entry reports the aquifer resistivity as 474.3 Ω·m (layer 4), but the normalcy_verdicts entry states it as "value not extracted in source register."
+
+Not a value disagreement; `normalcy_verdicts` simply failed to extract Choba's number during generation. 474.3 Ω·m is confirmed correct throughout this project (`reading-choba-choba-lawntennisfield`, used in every Choba eval question and example).
+
+**Resolution:** Kept 474.3 Ω·m.
+
+---
+
 ## Summary for quick reference
 
 | # | Station(s) | What's in question | Category |
@@ -156,6 +199,10 @@ the same fact in different words).
 | 1, 3, 8 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | Real (paper transcription error) |
 | 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | Real (paper labeling error) |
 | 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | ⚠ possibly a false pairing of two different stations | Needs your review |
-| 5, 6 | Kor-road / Kenpoly Convocation Arena | KB entry's own generated text had a copy-paste error | KB-build bug, not a paper error |
+| 5, 6, 9 | Kor-road / Kenpoly Convocation Arena / Bank-road | KB entry's own generated text had a copy-paste error | KB-build bug, not a paper error |
 | 7 | Etche (8 stations) | False positive, already confirmed accurate | Not a real conflict |
 | 8 | BMGS Bori Field / Kenpoly sec school field | Same swap as #1/#3, re-surfaced on a routine re-scan; entries didn't actually disagree | Artifact of re-detection, not a new error |
+| 10 | Kenpoly Convocation Arena vs Kenpoly sec school field | Same station-name confusion as #4, this time in a freshly generated entry | KB-build bug, verified against dataset |
+| 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | KB-build gap, not a real conflict |
+
+**Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. #5, #6, #9, #10, and #11 are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent.
