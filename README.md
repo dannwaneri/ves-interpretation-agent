@@ -8,6 +8,8 @@ Built for the [Sanity Challenge, Path One: Ship an Agent That Queries Real Conte
 **Knowledge Base ID:** `kbIp9dbX1pcY`
 **Model:** [Qwen](https://www.alibabacloud.com/en/product/modelstudio) (`qwen-plus`, via DashScope)
 
+**[Try it live: ves-interpretation-agent.vercel.app](https://ves-interpretation-agent.vercel.app)**, no login or setup needed. A static findings page lists all 10 internal inconsistencies; an ask page runs the same rule-based `--offline` mode as the CLI below, live, with example questions ready to click. Source: [`web/`](web/) and [`api/ask.js`](api/ask.js), which calls `agent/index.js --offline` as an unmodified child process, so the deployed page and the CLI can never give different answers.
+
 ## The problem
 
 The same resistivity reading means something different depending on the site's own history. A value that's normal at one location is a red flag at another. Field geologists checking this by hand have to cross-reference multiple published papers under time pressure, and those papers don't always agree with themselves.
@@ -35,7 +37,14 @@ agent/      The querying agent (Node, MCP client + Qwen for reasoning)
 eval/       Structured-vs-baseline evaluation harness and results
 examples/   Real, complete example outputs with every tool call shown
 docs/       The Phase 6 conflicts checklist
+web/        Static demo site (findings page + ask page), deployed to Vercel
+api/        ask.js, a Vercel Node function that calls agent/index.js --offline
+            as a child process; no agent/ code is imported or changed
 ```
+
+`package.json` at the repo root has no real dependencies; it exists only so Vercel's
+default install step has something to run. Real dependencies live in `agent/package.json`,
+installed separately by `vercel.json`'s `buildCommand`.
 
 ## Reproducing this
 
