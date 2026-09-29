@@ -144,6 +144,8 @@ Full scorecard: [eval/results/scorecard--2026-09-26.md](eval/results/scorecard--
 
 All three were fixed and re-verified before this section was written; see [Limitations](#limitations) for exactly what was wrong and how each was confirmed fixed.
 
+**A second held-out run, after the depth-arithmetic tolerance fix.** The same 4 questions above were re-run against the code once the tolerance fix started correctly catching Etche's Akpoku station (see Limitations). 3 of 4 passed unchanged. The fourth, the cross-site comparison question, failed on this run: it now named a station (Akpoku) with a real depth-arithmetic finding, and the override meant to state that finding overwrote the entire comparison answer instead of leaving it alone. Fixed by gating the override against comparison questions (see Limitations for the detail); re-run after the fix, all 4 of 4 passed.
+
 ## Limitations
 
 Real failures found during development, not smoothed over:
@@ -168,7 +170,7 @@ Real failures found during development, not smoothed over:
 
 ## Data sources
 
-Real, cited, DOI-linked VES survey papers, transcribed into **3 papers, 3 sites, 24 station readings** (9 Knowledge Base entries as of the Phase 8 rebuild, well under the 150-entry limit):
+Real, cited, DOI-linked VES survey papers, transcribed into **3 papers, 3 sites, 24 station readings** (11 Knowledge Base entries as of the most recent rebuild, confirmed live on 2026-09-29, well under the 150-entry limit):
 
 - Menegbo, Davies & Horsfall (2024), Bori Metropolis: [doi.org/10.30574/wjarr.2024.24.2.3293](https://doi.org/10.30574/wjarr.2024.24.2.3293)
 - Oghonyon, Nnurum & Oguejiofor (2025), Choba: [doi.org/10.51244/IJRSI.2025.120700155](https://doi.org/10.51244/IJRSI.2025.120700155)
