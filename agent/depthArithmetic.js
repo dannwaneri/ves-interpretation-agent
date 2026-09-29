@@ -3,7 +3,7 @@
 // cumulative depth plus this layer's thickness. A mismatch means the
 // printed depth and the printed thickness for that layer don't reconcile
 // with each other -- it does NOT identify which of the two printed numbers
-// is the error.
+// is wrong.
 //
 // For Egwi (Etche), the paper's own Figure 2 narrative text repeats both
 // the printed thickness (~37.95 m) and the printed depth (37.25 m). That
@@ -18,18 +18,21 @@
 // field data (AB/2 spacing vs. apparent resistivity) to re-run the
 // inversion; that's out of scope here. Report both readings; do not guess.
 //
-// Tolerance calibrated against every known case across both sites, not just
-// the two originally checked: published tables round thickness/depth to 1-3
-// significant digits, so ordinary rounding alone can produce up to ~0.3 m of
-// drift even on a station with no documented issue (Bori's Court-road, all
-// 3 layer transitions: 0.06, 0.10, 0.30 m). The 7 confirmed real errors
-// across both papers range from ~0.8 m (Etche's Akpoku, layer 2) to ~11.0 m
-// (Etche's Ulakwo, layer 3) -- a first pass at this tolerance (1.0 m) missed
-// Akpoku's 0.795 m error entirely, a false negative caught only by directly
-// verifying every documented case against the raw PDF text rather than
-// assuming the two originally-checked examples (Egwi, Court-road)
-// represented the full range. 0.5 m sits in the gap between the largest
-// known clean noise (0.30 m) and the smallest known real error (0.795 m).
+// Tolerance chosen after inspecting every known case across both sites, not
+// just the two originally checked: published tables round thickness/depth
+// to 1-3 significant digits, so ordinary rounding alone can produce up to
+// 0.300 m of drift even on a station with no documented issue (Bori's
+// Court-road, all 3 layer transitions: 0.06, 0.10, 0.30 m). The 6 confirmed
+// internal inconsistencies in Etche's depth tables range from 0.795 m
+// (Akpoku, layer 2) to ~11.0 m (Ulakwo, layer 3) -- a first pass at this
+// tolerance (1.0 m) missed Akpoku's 0.795 m case entirely, a false negative
+// caught only by directly checking every documented case against the raw
+// PDF text rather than assuming the two originally-checked examples (Egwi,
+// Court-road) represented the full range. 0.5 m sits in the gap between the
+// largest known clean noise (0.300 m) and the smallest known internal
+// inconsistency (0.795 m). A held-out question touching Akpoku, re-run on
+// 2026-09-29 after this tolerance shipped, is the first held-out test of
+// this value; it passed (see README's Limitations).
 const TOLERANCE_M = 0.5
 
 function sortLayersByIndex(layers) {

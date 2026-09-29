@@ -69,14 +69,14 @@ test('Egwi (Etche): layer 4 printed depth and thickness do not reconcile', () =>
   assert.equal(result.impliedThicknessIfDepthCorrect, 30.9565)
 })
 
-// The remaining 5 documented Etche depth-arithmetic errors, each read
-// directly from eval/paper-text/etche.txt's own per-station tables on
+// The remaining 5 documented Etche depth-arithmetic inconsistencies, each
+// read directly from eval/paper-text/etche.txt's own per-station tables on
 // 2026-09-29 and independently confirmed by hand before being encoded here.
-// Akpoku is the important one: its 0.795 m discrepancy is real (confirmed
-// against the raw PDF) but is smaller than the original 1.0 m tolerance,
-// which missed it entirely -- a genuine false negative found by checking
-// every documented case against the source instead of assuming the two
-// originally-tested examples (Egwi, Court-road) covered the real range.
+// Akpoku is the important one: its 0.795 m discrepancy is confirmed against
+// the raw PDF but is smaller than the original 1.0 m tolerance, which
+// missed it entirely -- a genuine false negative found by checking every
+// documented case against the source instead of assuming the two
+// originally-tested examples (Egwi, Court-road) covered the full range.
 
 test('Ulakwo (Etche): layer 2 does not reconcile', () => {
   const reading = {
@@ -106,7 +106,7 @@ test('Okehi (Etche): layer 3 does not reconcile', () => {
   assert.equal(result.layerIndex, 3)
 })
 
-test('Akpoku (Etche): layer 2 does not reconcile, a smaller (~0.8 m) real error that a too-loose 1.0 m tolerance previously missed', () => {
+test('Akpoku (Etche): layer 2 does not reconcile, a smaller (0.795 m) internal inconsistency that a too-loose 1.0 m tolerance previously missed', () => {
   const reading = {
     station: 'Akpoku',
     layers: [
