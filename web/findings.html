@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Findings | VES Interpretation Agent</title>
+  <meta name="description" content="10 internal inconsistencies found across 3 published groundwater survey papers, each verified against the source PDF." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="page">
+      <nav class="top">
+        <a href="index.html">← Home</a>
+        <a href="https://github.com/dannwaneri/ves-interpretation-agent" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/dannwaneri/ves-interpretation-agent/blob/main/docs/conflicts-checklist.md" target="_blank" rel="noopener">Full checklist (PDF citations)</a>
+      </nav>
+      <h1>10 internal inconsistencies, 3 published papers</h1>
+      <p class="purpose">Every row below is verified against the source PDF, page and table cited. Nobody staged these: they're what's actually sitting inside the papers this agent reads.</p>
+    </header>
+
+    <section class="stats">
+      <div class="stat"><span class="n">10</span><span class="l">internal inconsistencies</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">published papers</span></div>
+      <div class="stat"><span class="n">11</span><span class="l">Context issues raised</span></div>
+      <div class="stat"><span class="n">4</span><span class="l">of 11 pointed to a real error</span></div>
+    </section>
+
+    <div class="callout">
+      <p>Sanity Context's own conflict detector raised 11 issues while building this Knowledge Base. 4 of them pointed to real errors, covering 2 of the 10 inconsistencies below: the Bori swap and the Choba curve label. Same-fact detection is exactly right for a case where two documents state different numbers for the same station.</p>
+      <p>The other 8 are never stated as a contradiction in words: a label that doesn't match its own data, or a depth that doesn't equal the layer above plus its own thickness. Those need a computed check, not a text comparison, so this agent's code catches them at query time instead.</p>
+    </div>
+
+    <h2>The 10 internal inconsistencies</h2>
+    <p class="sub">Found by: <span style="color:var(--accent)">Context</span> = Sanity Context's build-time conflict detector · <span style="color:var(--code)">Code</span> = this agent's own checks, computed live from the raw layer numbers</p>
+
+    <div class="cards" id="findings-cards"></div>
+
+    <details>
+      <summary>All 11 Context Issues, mapped (4 real, 7 artifacts)</summary>
+      <div class="issue-table-wrap">
+        <table class="issues" id="issues-table">
+          <thead>
+            <tr><th>#</th><th>Station(s)</th><th>What's in question</th><th>Verdict</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </details>
+
+    <footer class="page">
+      Every row here is drawn from <a href="https://github.com/dannwaneri/ves-interpretation-agent/blob/main/docs/conflicts-checklist.md">docs/conflicts-checklist.md</a>, which quotes the exact PDF text for each finding. This is static content generated once from that file; it does not run live.
+    </footer>
+  </div>
+
+  <script>
+    const inconsistencies = [
+      {station: 'BMGS Bori Field / Kenpoly sec school field', desc: 'p.7 summary table row labels swapped against the paper\'s own p.3 coordinate table', source: 'Menegbo et al. (2024), Bori, p.3 and p.7', foundBy: 'context', foundByLabel: 'Context (Issues 1, 3, 8)'},
+      {station: 'Choba Lawn Tennis Field', desc: 'Labeled A-type despite its own stated non-monotonic trend (ℓ1<ℓ2>ℓ3<ℓ4<ℓ5)', source: 'Oghonyon et al. (2025), Table 5 / Discussion', foundBy: 'both', foundByLabel: 'Context (Issue 2) + Code'},
+      {station: 'Etche Odufor', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Opiro', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Egwi, layer 4', desc: 'Printed depth and thickness don\'t reconcile (~7.0 m gap)', source: 'Nwankwoala et al. (2022), Table 1', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Ulakwo, layers 2 & 3', desc: 'Printed depths don\'t reconcile (~1.3 m and ~11.0 m gaps)', source: 'Nwankwoala et al. (2022), Table 2', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Okehi, layer 3', desc: 'Printed depth doesn\'t reconcile (~3.0 m gap)', source: 'Nwankwoala et al. (2022), Table 3', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Akpoku, layer 2', desc: 'Printed depth doesn\'t reconcile (~0.8 m gap), smaller than the tolerance first shipped with, a false negative found and fixed later', source: 'Nwankwoala et al. (2022), Table 6', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Ndashi, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.7 m gap)', source: 'Nwankwoala et al. (2022), Table 7', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Umuokom, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.4 m gap)', source: 'Nwankwoala et al. (2022), Table 8', foundBy: 'code', foundByLabel: 'Code only'},
+    ]
+
+    const issues = [
+      {n: 1, station: 'BMGS Bori Field', question: '2950 vs 3706 Ω·m table swap', verdict: 'real'},
+      {n: 2, station: 'Choba Lawn Tennis Field', question: 'A-type label vs non-monotonic data', verdict: 'real'},
+      {n: 3, station: 'BMGS Bori Field', question: 'Same swap as #1, different entry pairing', verdict: 'real'},
+      {n: 4, station: 'Kenpoly Convocation Arena vs Kenpoly sec school field', question: 'Two different, correctly-labeled stations paired as if competing', verdict: 'artifact'},
+      {n: 5, station: 'Kor-road / Kenpoly Convocation Arena', question: 'KB entry\'s own generated text had a copy-paste error', verdict: 'artifact'},
+      {n: 6, station: 'Kenpoly Convocation Arena / Kor-road', question: 'Same bug as #5, other side', verdict: 'artifact'},
+      {n: 7, station: 'Etche (8 stations)', question: 'False positive, confirmed accurate', verdict: 'artifact'},
+      {n: 8, station: 'BMGS Bori Field', question: 'Same swap as #1/#3, re-surfaced on a later re-scan', verdict: 'real'},
+      {n: 9, station: 'Bank-road', question: 'KB entry\'s own generated text had a copy-paste error', verdict: 'artifact'},
+      {n: 10, station: 'Kenpoly sec school field', question: 'Same station-name confusion as #4, in a freshly generated entry', verdict: 'artifact'},
+      {n: 11, station: 'Choba Lawn Tennis Field', question: 'Missing value in a new entry, not a conflicting one', verdict: 'artifact'},
+    ]
+
+    const cardsEl = document.getElementById('findings-cards')
+    inconsistencies.forEach((f, i) => {
+      const badgeClass = f.foundBy === 'both' ? 'both' : f.foundBy
+      const card = document.createElement('div')
+      card.className = 'card'
+      card.innerHTML = `
+        <div class="row1">
+          <span class="station">${i + 1}. ${f.station}</span>
+          <span class="badge ${badgeClass}">${f.foundByLabel}</span>
+        </div>
+        <div class="desc">${f.desc}</div>
+        <div class="meta">${f.source}</div>
+      `
+      cardsEl.appendChild(card)
+    })
+
+    const tbody = document.querySelector('#issues-table tbody')
+    issues.forEach((iss) => {
+      const tr = document.createElement('tr')
+      tr.innerHTML = `
+        <td>${iss.n}</td>
+        <td>${iss.station}</td>
+        <td>${iss.question}</td>
+        <td class="verdict ${iss.verdict}">${iss.verdict === 'real' ? 'REAL' : 'ARTIFACT'}</td>
+      `
+      tbody.appendChild(tr)
+    })
+  </script>
+</body>
+</html>
