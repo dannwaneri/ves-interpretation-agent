@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "web",
+  "buildCommand": "npm install --prefix agent",
+  "functions": {
+    "api/ask.js": {
+      "includeFiles": "agent/**"
+    }
+  }
+}

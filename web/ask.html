@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ask | VES Interpretation Agent</title>
+  <meta name="description" content="Ask the agent's offline, rule-based mode whether a resistivity reading is normal for its site." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .example-btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: left;
+    }
+    .example-btn:hover,
+    .example-btn:focus-visible {
+      border-color: var(--accent);
+    }
+    button.submit {
+      background: var(--accent);
+      color: #04121f;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button.submit:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .charcount {
+      font-size: 0.78rem;
+      color: var(--muted);
+      float: right;
+      margin-top: 4px;
+    }
+    #answer {
+      margin-top: 24px;
+    }
+    .verdict-badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .verdict-badge.normal { background: rgba(110, 231, 168, 0.15); color: var(--artifact); }
+    .verdict-badge.anomalous,
+    .verdict-badge.labelmismatch { background: rgba(255, 138, 101, 0.15); color: var(--real); }
+    .verdict-badge.uncertain { background: rgba(154, 163, 178, 0.15); color: var(--muted); }
+    .answer-station { font-size: 1.1rem; font-weight: 600; margin: 0 0 8px; }
+    .answer-summary { margin: 0 0 14px; }
+    .kv { font-size: 0.88rem; color: var(--muted); margin: 4px 0; }
+    .error-box {
+      background: var(--panel);
+      border: 1px solid var(--real);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: var(--real);
+      font-size: 0.9rem;
+    }
+    pre.trace {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.78rem;
+      background: rgba(0,0,0,0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 8px 0 0;
+    }
+    .loading { color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="page">
+      <nav class="top">
+        <a href="index.html">← Home</a>
+        <a href="findings.html">Findings</a>
+        <a href="https://github.com/dannwaneri/ves-interpretation-agent" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <h1>Ask the agent</h1>
+      <p class="purpose">This page runs the rule-based <code>--offline</code> mode on a snapshot of the dataset: no LLM, no network. It runs the exact same command the repo's README tells you to run yourself, so this page and your own terminal can never disagree. The full agent uses Sanity Context and an LLM for freer-form questions; see the repo.</p>
+    </header>
+
+    <div class="examples" id="examples"></div>
+
+    <textarea id="question" maxlength="300" placeholder="e.g. Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?"></textarea>
+    <div class="charcount"><span id="charcount">0</span>/300</div>
+    <div style="clear:both"></div>
+    <button class="submit" id="submit">Ask</button>
+
+    <div id="answer"></div>
+
+    <footer class="page">
+      Rule-based mode understands fewer question forms than the full agent. If it can't parse yours, try one of the example buttons above. Source: <a href="https://github.com/dannwaneri/ves-interpretation-agent/blob/main/agent/offline.js">agent/offline.js</a>, unchanged.
+    </footer>
+  </div>
+
+  <script>
+    const EXAMPLES = [
+      "I got a 2950 ohm-m reading at BMGS Bori Field. Is that normal or anomalous, and can I trust it?",
+      "Is the Choba Lawn Tennis Field curve really an A-type curve like the paper says?",
+      "Does Egwi station's reported layer depth in the Etche paper add up correctly?",
+      "I measured 3488 ohm-m at Kenpoly Convocation Arena, Bori. Does that check out against the source paper, and is there any known issue with it?",
+    ]
+
+    const examplesEl = document.getElementById('examples')
+    const questionEl = document.getElementById('question')
+    const charcountEl = document.getElementById('charcount')
+    const submitEl = document.getElementById('submit')
+    const answerEl = document.getElementById('answer')
+
+    EXAMPLES.forEach((q) => {
+      const btn = document.createElement('button')
+      btn.className = 'example-btn'
+      btn.type = 'button'
+      btn.textContent = q.length > 60 ? q.slice(0, 57) + '...' : q
+      btn.title = q
+      btn.addEventListener('click', () => {
+        questionEl.value = q
+        updateCount()
+        ask()
+      })
+      examplesEl.appendChild(btn)
+    })
+
+    function updateCount() {
+      charcountEl.textContent = questionEl.value.length
+    }
+    questionEl.addEventListener('input', updateCount)
+
+    // Parses the plain-text CLI output from agent/offline.js's formatForCli().
+    // Every field here comes directly from that text; nothing is invented or
+    // fetched separately.
+    function parseOfflineOutput(text) {
+      const badgeMatch = text.match(/^\[([A-Z ]+)\][ \t]*(.*)$/m)
+      const verdict = badgeMatch ? badgeMatch[1].trim() : null
+      const station = badgeMatch ? badgeMatch[2].trim() : null
+      const summaryMatch = text.match(/^\[[A-Z ]+\][^\n]*\n(.+?)(\n\n|\nClaims:|\nNumbers:|\nSource:|\nGROQ query)/sm)
+      const summary = summaryMatch ? summaryMatch[1].trim() : null
+      const numbersMatch = text.match(/Numbers:\n((?:.*\n?)*?)(?:\n\n|\nSource:|\nGROQ query)/)
+      const numbers = numbersMatch ? numbersMatch[1].trim() : null
+      const sourceMatch = text.match(/Source:\s*(.+)/)
+      const source = sourceMatch ? sourceMatch[1].trim() : null
+      const curveMatch = text.match(/Published curve type:\s*(\S+)\s+Derived:\s*(\S+)/)
+      const groqMatch = text.match(/GROQ query run locally:\n((?:.*\n?)*?)(?:\n\n|\nDocument IDs|\nNo LLM)/)
+      const groqQuery = groqMatch ? groqMatch[1].trim() : null
+      const docIdsMatch = text.match(/Document IDs used:\n((?:.*\n?)*?)(?:\n\n|\nNo LLM)/)
+      const documentIds = docIdsMatch ? docIdsMatch[1].trim() : null
+
+      return {verdict, station, summary, numbers, source, curve: curveMatch ? {published: curveMatch[1], derived: curveMatch[2]} : null, groqQuery, documentIds}
+    }
+
+    function badgeClass(verdict) {
+      if (!verdict) return ''
+      return verdict.toLowerCase().replace(/\s+/g, '')
+    }
+
+    async function ask() {
+      const question = questionEl.value.trim()
+      if (!question) return
+      submitEl.disabled = true
+      answerEl.innerHTML = '<p class="loading">Running the offline check…</p>'
+
+      try {
+        const res = await fetch('/api/ask', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({question}),
+        })
+        const data = await res.json()
+
+        if (!res.ok || data.error) {
+          answerEl.innerHTML = `<div class="error-box">${(data.error || 'Something went wrong.').replace(/</g, '&lt;')}</div>`
+          return
+        }
+
+        const parsed = parseOfflineOutput(data.output)
+        let html = ''
+        if (parsed.verdict) {
+          html += `<span class="verdict-badge ${badgeClass(parsed.verdict)}">${parsed.verdict}</span>`
+        }
+        if (parsed.station) html += `<p class="answer-station">${parsed.station}</p>`
+        if (parsed.summary) html += `<p class="answer-summary">${parsed.summary}</p>`
+        if (parsed.summary && /could not resolve/i.test(parsed.summary)) {
+          html += `<div class="error-box">This rule-based mode couldn't match a station in your wording. Try one of the example questions above, or name a station exactly (e.g. "BMGS Bori Field", "Choba Lawn Tennis Field", "Egwi").</div>`
+        }
+        if (parsed.curve) html += `<p class="kv">Published curve type: <strong>${parsed.curve.published}</strong> &nbsp; Derived: <strong>${parsed.curve.derived}</strong></p>`
+        if (parsed.numbers) html += `<p class="kv">${parsed.numbers.replace(/\n/g, '<br>')}</p>`
+        if (parsed.source) html += `<p class="kv">Source: ${parsed.source}</p>`
+
+        html += `<details style="margin-top:16px"><summary>Trace: what the offline mode actually ran</summary><div style="padding:0 16px 16px">`
+        if (parsed.groqQuery) html += `<div class="kv">GROQ query run locally:</div><pre class="trace">${parsed.groqQuery.replace(/</g, '&lt;')}</pre>`
+        if (parsed.documentIds) html += `<div class="kv">Document IDs used:</div><pre class="trace">${parsed.documentIds.replace(/</g, '&lt;')}</pre>`
+        html += `<div class="kv" style="margin-top:8px">No LLM call and no Knowledge Base call were made. This is a rule-based read of the local dataset snapshot only.</div>`
+        html += `</div></details>`
+
+        html += `<details style="margin-top:10px"><summary>Raw output</summary><pre class="trace" style="margin:0 16px 16px">${data.output.replace(/</g, '&lt;')}</pre></details>`
+
+        answerEl.innerHTML = html
+      } catch (e) {
+        answerEl.innerHTML = `<div class="error-box">Could not reach the offline check. Try again in a moment.</div>`
+      } finally {
+        submitEl.disabled = false
+      }
+    }
+
+    submitEl.addEventListener('click', ask)
+    questionEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) ask()
+    })
+  </script>
+</body>
+</html>
