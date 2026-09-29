@@ -4,3 +4,5 @@ node_modules/
 !agent/offline-snapshot.ndjson
 eval/paper-text/
 eval/eval-run.log
+
+.vercel
