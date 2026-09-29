@@ -55,16 +55,16 @@
 
   <script>
     const inconsistencies = [
-      {station: 'BMGS Bori Field / Kenpoly sec school field', desc: 'p.7 summary table row labels swapped against the paper\'s own p.3 coordinate table', source: 'Menegbo et al. (2024), Bori, p.3 and p.7', foundBy: 'context', foundByLabel: 'Context (Issues 1, 3, 8)'},
-      {station: 'Choba Lawn Tennis Field', desc: 'Labeled A-type despite its own stated non-monotonic trend (ℓ1<ℓ2>ℓ3<ℓ4<ℓ5)', source: 'Oghonyon et al. (2025), Table 5 / Discussion', foundBy: 'both', foundByLabel: 'Context (Issue 2) + Code'},
-      {station: 'Etche Odufor', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Opiro', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Egwi, layer 4', desc: 'Printed depth and thickness don\'t reconcile (~7.0 m gap)', source: 'Nwankwoala et al. (2022), Table 1', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Ulakwo, layers 2 & 3', desc: 'Printed depths don\'t reconcile (~1.3 m and ~11.0 m gaps)', source: 'Nwankwoala et al. (2022), Table 2', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Okehi, layer 3', desc: 'Printed depth doesn\'t reconcile (~3.0 m gap)', source: 'Nwankwoala et al. (2022), Table 3', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Akpoku, layer 2', desc: 'Printed depth doesn\'t reconcile (~0.8 m gap), smaller than the tolerance first shipped with, a false negative found and fixed later', source: 'Nwankwoala et al. (2022), Table 6', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Ndashi, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.7 m gap)', source: 'Nwankwoala et al. (2022), Table 7', foundBy: 'code', foundByLabel: 'Code only'},
-      {station: 'Etche Umuokom, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.4 m gap)', source: 'Nwankwoala et al. (2022), Table 8', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'BMGS Bori Field / Kenpoly sec school field', desc: 'p.7 summary table row labels swapped against the paper\'s own p.3 coordinate table', source: 'Menegbo et al. (2024), Bori, p.3 and p.7', doi: 'https://doi.org/10.30574/wjarr.2024.24.2.3293', foundBy: 'context', foundByLabel: 'Context (Issues 1, 3, 8)'},
+      {station: 'Choba Lawn Tennis Field', desc: 'Labeled A-type despite its own stated non-monotonic trend (ℓ1<ℓ2>ℓ3<ℓ4<ℓ5)', source: 'Oghonyon et al. (2025), Table 5 / Discussion', doi: 'https://doi.org/10.51244/IJRSI.2025.120700155', foundBy: 'both', foundByLabel: 'Context (Issue 2) + Code'},
+      {station: 'Etche Odufor', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Opiro', desc: 'Labeled A-type despite a non-monotonic layer sequence', source: 'Nwankwoala et al. (2022), Table 9', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Egwi, layer 4', desc: 'Printed depth and thickness don\'t reconcile (~7.0 m gap)', source: 'Nwankwoala et al. (2022), Table 1', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Ulakwo, layers 2 & 3', desc: 'Printed depths don\'t reconcile (~1.3 m and ~11.0 m gaps)', source: 'Nwankwoala et al. (2022), Table 2', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Okehi, layer 3', desc: 'Printed depth doesn\'t reconcile (~3.0 m gap)', source: 'Nwankwoala et al. (2022), Table 3', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Akpoku, layer 2', desc: 'Printed depth doesn\'t reconcile (~0.8 m gap), smaller than the tolerance first shipped with, a false negative found and fixed later', source: 'Nwankwoala et al. (2022), Table 6', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Ndashi, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.7 m gap)', source: 'Nwankwoala et al. (2022), Table 7', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
+      {station: 'Etche Umuokom, layer 5', desc: 'Printed depth doesn\'t reconcile (~9.4 m gap)', source: 'Nwankwoala et al. (2022), Table 8', doi: 'https://doi.org/10.30574/gjeta.2022.11.1.0070', foundBy: 'code', foundByLabel: 'Code only'},
     ]
 
     const issues = [
@@ -72,11 +72,11 @@
       {n: 2, station: 'Choba Lawn Tennis Field', question: 'A-type label vs non-monotonic data', verdict: 'real'},
       {n: 3, station: 'BMGS Bori Field', question: 'Same swap as #1, different entry pairing', verdict: 'real'},
       {n: 4, station: 'Kenpoly Convocation Arena vs Kenpoly sec school field', question: 'Two different, correctly-labeled stations paired as if competing', verdict: 'artifact'},
-      {n: 5, station: 'Kor-road / Kenpoly Convocation Arena', question: 'KB entry\'s own generated text had a copy-paste error', verdict: 'artifact'},
-      {n: 6, station: 'Kenpoly Convocation Arena / Kor-road', question: 'Same bug as #5, other side', verdict: 'artifact'},
-      {n: 7, station: 'Etche (8 stations)', question: 'False positive, confirmed accurate', verdict: 'artifact'},
+      {n: 5, station: 'Kor-road / Kenpoly Convocation Arena', question: 'The generated entry\'s Kenpoly Convocation Arena section repeated Kor-road\'s layer values (1658 Ω·m) instead of Kenpoly\'s own (3488 Ω·m)', verdict: 'artifact'},
+      {n: 6, station: 'Kenpoly Convocation Arena / Kor-road', question: 'Same bug as #5, described from the Kenpoly side: its generated layer model matched Kor-road\'s values, not its own source reading', verdict: 'artifact'},
+      {n: 7, station: 'Etche (8 stations)', question: 'Context flagged this as a possible issue; the data matches the PDF, so the flag was a false positive', verdict: 'artifact'},
       {n: 8, station: 'BMGS Bori Field', question: 'Same swap as #1/#3, re-surfaced on a later re-scan', verdict: 'real'},
-      {n: 9, station: 'Bank-road', question: 'KB entry\'s own generated text had a copy-paste error', verdict: 'artifact'},
+      {n: 9, station: 'Bank-road', question: 'The generated entry stated Bank-road\'s layer 3 depth as 111 m; Bank-road\'s own reading shows 97.9 m, and 111 m is Kor-road\'s layer 3 depth exactly', verdict: 'artifact'},
       {n: 10, station: 'Kenpoly sec school field', question: 'Same station-name confusion as #4, in a freshly generated entry', verdict: 'artifact'},
       {n: 11, station: 'Choba Lawn Tennis Field', question: 'Missing value in a new entry, not a conflicting one', verdict: 'artifact'},
     ]
@@ -92,7 +92,7 @@
           <span class="badge ${badgeClass}">${f.foundByLabel}</span>
         </div>
         <div class="desc">${f.desc}</div>
-        <div class="meta">${f.source}</div>
+        <div class="meta">${f.doi ? `<a href="${f.doi}" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline">${f.source}</a>` : f.source}</div>
       `
       cardsEl.appendChild(card)
     })
