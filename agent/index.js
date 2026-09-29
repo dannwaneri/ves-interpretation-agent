@@ -369,6 +369,14 @@ async function main() {
     console.log('\n' + formatOffline(answer))
     return
   }
+
+  const requiredKeys = isPublic ? ['SANITY_PROJECT_ID', 'QWEN_API_KEY'] : ['SANITY_MCP_URL', 'SANITY_GROQ_MCP_URL', 'SANITY_KB_ID', 'QWEN_API_KEY']
+  const missing = requiredKeys.filter((k) => !env[k])
+  if (missing.length > 0) {
+    console.error(`Missing keys: ${missing.join(', ')}. See .env.example, or run with --offline.`)
+    process.exit(1)
+  }
+
   if (isPublic) {
     const {publicAsk} = require('./public.js')
     const answer = await publicAsk(query)

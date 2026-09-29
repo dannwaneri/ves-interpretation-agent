@@ -3,7 +3,13 @@ const path = require('path')
 
 function loadEnv() {
   const envPath = path.join(__dirname, '..', '.env')
-  const text = fs.readFileSync(envPath, 'utf8')
+  let text
+  try {
+    text = fs.readFileSync(envPath, 'utf8')
+  } catch (e) {
+    if (e.code === 'ENOENT') return {}
+    throw e
+  }
   const env = {}
   for (const line of text.split('\n')) {
     const trimmed = line.trim()
