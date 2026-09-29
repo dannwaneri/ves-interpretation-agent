@@ -1,0 +1,6 @@
+{
+  "name": "ves-interpretation-agent",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Repo root marker for Vercel. Real dependencies live in agent/package.json, installed separately by vercel.json's buildCommand."
+}
