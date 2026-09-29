@@ -18,13 +18,19 @@
 // field data (AB/2 spacing vs. apparent resistivity) to re-run the
 // inversion; that's out of scope here. Report both readings; do not guess.
 //
-// Tolerance is deliberately generous, not tight: published tables round
-// thickness/depth to 1-3 significant digits, so ordinary rounding alone can
-// produce ~0.3 m of drift even on a station with no known issue (confirmed
-// against Bori's Court-road, which has no documented problem). The real
-// documented errors are off by ~7-10 m, a wide enough gap that 1.0 m
-// cleanly separates rounding noise from a genuine inconsistency.
-const TOLERANCE_M = 1.0
+// Tolerance calibrated against every known case across both sites, not just
+// the two originally checked: published tables round thickness/depth to 1-3
+// significant digits, so ordinary rounding alone can produce up to ~0.3 m of
+// drift even on a station with no documented issue (Bori's Court-road, all
+// 3 layer transitions: 0.06, 0.10, 0.30 m). The 7 confirmed real errors
+// across both papers range from ~0.8 m (Etche's Akpoku, layer 2) to ~11.0 m
+// (Etche's Ulakwo, layer 3) -- a first pass at this tolerance (1.0 m) missed
+// Akpoku's 0.795 m error entirely, a false negative caught only by directly
+// verifying every documented case against the raw PDF text rather than
+// assuming the two originally-checked examples (Egwi, Court-road)
+// represented the full range. 0.5 m sits in the gap between the largest
+// known clean noise (0.30 m) and the smallest known real error (0.795 m).
+const TOLERANCE_M = 0.5
 
 function sortLayersByIndex(layers) {
   return [...layers].sort((a, b) => (a.layerIndex ?? 0) - (b.layerIndex ?? 0))

@@ -218,19 +218,48 @@ Not a value disagreement; `normalcy_verdicts` simply failed to extract Choba's n
 
 ---
 
-## Summary for quick reference
+## Table A: every Context Issue, mapped
 
-| # | Station(s) | What's in question | Verdict |
+11 Issues total. Only 4 of them (1, 2, 3, 8) map to a real paper error; the
+other 7 are artifacts, most of them the Knowledge Base's own
+entry-generation bugs rather than anything wrong with the source papers.
+
+| # | Station(s) | What's in question | Maps to | Verdict |
+|---|---|---|---|---|
+| 1 | BMGS Bori Field | 2950 vs 3706 Ω·m table swap | Real error #1 (Bori swap) | **REAL** |
+| 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | Real error #2 (Choba curve-type) | **REAL** |
+| 3 | BMGS Bori Field | Same swap as #1, via a different entry pairing | Real error #1 | **REAL** |
+| 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | Two different, correctly-labeled stations paired as if competing | None (false pairing) | **ARTIFACT** |
+| 5 | Kor-road / Kenpoly Convocation Arena | KB entry's own generated text had a copy-paste error | None (KB-generation bug) | **ARTIFACT** |
+| 6 | Kenpoly Convocation Arena / Kor-road | Same bug as #5, other side | None (KB-generation bug) | **ARTIFACT** |
+| 7 | Etche (8 stations) | False positive, confirmed accurate | None (confirmed accurate) | **ARTIFACT** |
+| 8 | BMGS Bori Field | Same swap as #1/#3, re-surfaced on a later re-scan | Real error #1 | **REAL** |
+| 9 | Bank-road | KB entry's own generated text had a copy-paste error (Kor-road's number bled in) | None (KB-generation bug) | **ARTIFACT** |
+| 10 | Kenpoly sec school field | Same station-name confusion as #4, in a freshly generated entry | None (KB-generation bug) | **ARTIFACT** |
+| 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | None (KB-generation gap) | **ARTIFACT** |
+
+## Table B: every distinct real error in the papers
+
+10 distinct real errors across the 3 papers, not 3 and not 7. Each
+listed once, with its exact source and which check actually caught it.
+"Context" means Sanity Context's own build-time same-fact conflict
+detector raised an Issue for it. "Code" means `agent/curveType.js` or
+`agent/depthArithmetic.js` catches it live, at query time, computed from
+the raw layer numbers.
+
+| # | Error | Paper / page | Found by |
 |---|---|---|---|
-| 1, 3, 8 | BMGS Bori Field / Kenpoly sec school field | 2950 vs 3706 Ω·m table swap | **REAL** (paper transcription error, PDF-verified) |
-| 2 | Choba Lawn Tennis Field | A-type label vs non-monotonic data | **REAL** (paper labeling error, PDF-verified) |
-| 4 | Kenpoly Convocation Arena vs Kenpoly sec school field | A false pairing of two different, correctly-labeled stations | **ARTIFACT**, PDF-verified |
-| 5, 6, 9 | Kor-road / Kenpoly Convocation Arena / Bank-road | KB entry's own generated text had a copy-paste error | **ARTIFACT** (KB-build bug, PDF-verified as not a paper error) |
-| 7 | Etche (8 stations) | False positive, confirmed accurate | **ARTIFACT** (not a real conflict, PDF-verified) |
-| 8 | BMGS Bori Field / Kenpoly sec school field | Same swap as #1/#3, re-surfaced on a routine re-scan | **REAL**, PDF-verified (same underlying fact as #1) |
-| 10 | Kenpoly Convocation Arena vs Kenpoly sec school field | Same station-name confusion as #4, in a freshly generated entry | **ARTIFACT** (KB-build bug, PDF-verified as not a paper error) |
-| 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | **ARTIFACT** (KB-build gap, PDF-verified as not a paper error) |
+| 1 | Bori table swap: BMGS Bori Field / Kenpoly sec school field, p.7 Table 1 row labels swapped against the paper's own p.3 coordinate table | Menegbo et al. (2024), Bori | Context (Issues 1, 3, 8) |
+| 2 | Choba Lawn Tennis Field labeled A-type despite its own stated non-monotonic trend (l1<l2>l3<l4<l5) | Oghonyon et al. (2025), Table 5 / Discussion | Context (Issue 2) + Code |
+| 3 | Etche Odufor labeled A-type despite a non-monotonic layer sequence | Nwankwoala et al. (2022), Table 9 | Code only, not a Context Issue |
+| 4 | Etche Opiro labeled A-type despite a non-monotonic layer sequence | Nwankwoala et al. (2022), Table 9 | Code only, not a Context Issue |
+| 5 | Etche Egwi, layer 4: printed depth and thickness don't reconcile (~7.0 m gap) | Nwankwoala et al. (2022), Table 1 | Code only, not a Context Issue |
+| 6 | Etche Ulakwo, layers 2 and 3: printed depths don't reconcile (~1.3 m and ~11.0 m gaps) | Nwankwoala et al. (2022), Table 2 | Code only, not a Context Issue |
+| 7 | Etche Okehi, layer 3: printed depth doesn't reconcile (~3.0 m gap) | Nwankwoala et al. (2022), Table 3 | Code only, not a Context Issue |
+| 8 | Etche Akpoku, layer 2: printed depth doesn't reconcile (~0.8 m gap) | Nwankwoala et al. (2022), Table 6 | Code only, not a Context Issue (also initially missed by the code itself; see Limitations) |
+| 9 | Etche Ndashi, layer 5: printed depth doesn't reconcile (~9.7 m gap) | Nwankwoala et al. (2022), Table 7 | Code only, not a Context Issue |
+| 10 | Etche Umuokom, layer 5: printed depth doesn't reconcile (~9.4 m gap) | Nwankwoala et al. (2022), Table 8 | Code only, not a Context Issue |
 
-**Totals: 3 real paper errors** (the Bori table swap and the Choba curve-type mislabel, each detected multiple times under different entry pairings), **8 artifacts** (1 false pairing of two distinct correct stations, 1 confirmed-accurate false positive, and 5 KB-generation bugs introduced by entry regeneration, not the source papers).
+**What this says about Sanity Context's conflict detector, honestly measured:** of 11 Issues raised, 4 pointed to real errors and 7 were artifacts (a 36% precision rate on this dataset). Of the 10 distinct real errors that actually exist in the source papers, Context's own detector caught exactly 2 (the Bori swap and the Choba mislabel, both same-fact-stated-twice patterns across separate structured entries). The other 8 (all 2 Etche curve-type mislabels and all 6 Etche depth-arithmetic errors) were never raised as Context Issues at all; they require computing a derived fact from raw numbers (is this sequence monotonic? does this layer's depth equal the prior depth plus its own thickness?), which is outside what the same-fact-conflict detector checks for, and were only caught by this project's own code-side checks at query time. Context is strong at catching two structured entries stating the same fact two different ways; it does not check whether a single entry's own label is consistent with its own underlying numbers.
 
-**Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. #5, #6, #9, #10, and #11 are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent.
+**Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. Issues 5, 6, 9, 10, and 11 in Table A are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent, which is itself a point in its favor even though none of them were real.
