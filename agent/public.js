@@ -130,6 +130,16 @@ function tokenOverlap(a, b) {
 // rather than visibly second-guessed).
 const COMPARISON_PATTERN = /^(.+?)\s+(?:has|shows?|reports?)\s+(higher|greater|more|lower|less|smaller)\b.*?\bthan\s+(.+?)(?:[:.,(]|$)/i
 
+// Same gate as agent/index.js -- see there for the held-out finding
+// (a comparison question naming a station with an unrelated documented
+// issue got its whole answer replaced by that issue's fixed template).
+// Applies to both overrides below, not just depth arithmetic: table-swap
+// has the identical station-name-only gate and the identical exposure.
+const COMPARISON_QUESTION_PATTERN = /\bbetween\s+.+\s+and\s+|\bcompare\b|\bcomparing\b|\bversus\b|\bvs\.?\b/i
+function isComparisonQuestion(question) {
+  return COMPARISON_QUESTION_PATTERN.test(question) || /\bwhich\b.{0,40}\b(higher|lower|greater|less|more|smaller)\b/i.test(question)
+}
+
 function fixComparisonClaim(answer, groqRows) {
   const m = (answer.headline || '').match(COMPARISON_PATTERN)
   if (!m) return
@@ -176,6 +186,7 @@ function claimedOhmM(question) {
 // block in code once a table-swap check identifies the relevant station.
 function applyTableSwapOverride(answer, question, swapChecks) {
   if (swapChecks.length === 0) return
+  if (isComparisonQuestion(question)) return
   let check = swapChecks[0]
   if (swapChecks.length > 1) {
     check = swapChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
@@ -207,6 +218,7 @@ function applyTableSwapOverride(answer, question, swapChecks) {
 // held-out test).
 function applyDepthInconsistencyOverride(answer, question, depthChecks) {
   if (depthChecks.length === 0) return
+  if (isComparisonQuestion(question)) return
   let check = depthChecks[0]
   if (depthChecks.length > 1) {
     check = depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))

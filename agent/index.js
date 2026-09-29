@@ -221,6 +221,22 @@ function tokenOverlap(a, b) {
 // retry lands on the right answer.
 const COMPARISON_PATTERN = /^(.+?)\s+(?:has|shows?|reports?)\s+(higher|greater|more|lower|less|smaller)\b.*?\bthan\s+(.+?)(?:[:.,(]|$)/i
 
+// Detects a comparison QUESTION (not the model's headline -- that's
+// COMPARISON_PATTERN above). Found necessary by a held-out regression run:
+// "Between Maakoro-street and Akpoku, which has higher resistivity?" names
+// Akpoku, which (after the depth-arithmetic tolerance fix started catching
+// it) has a real depth-arithmetic issue. applyDepthInconsistencyOverride's
+// station-name gate matched on "Akpoku" and overwrote the entire answer
+// with the depth-inconsistency template, discarding the comparison the
+// question actually asked for even though fixComparisonClaim, just above
+// it in the pipeline, had already computed the correct comparison headline.
+// A comparison question needs a comparison answer; a station having an
+// unrelated documented issue doesn't change what was asked.
+const COMPARISON_QUESTION_PATTERN = /\bbetween\s+.+\s+and\s+|\bcompare\b|\bcomparing\b|\bversus\b|\bvs\.?\b/i
+function isComparisonQuestion(question) {
+  return COMPARISON_QUESTION_PATTERN.test(question) || /\bwhich\b.{0,40}\b(higher|lower|greater|less|more|smaller)\b/i.test(question)
+}
+
 function fixComparisonClaim(answer, groqRows) {
   const m = (answer.headline || '').match(COMPARISON_PATTERN)
   if (!m) return
@@ -267,8 +283,13 @@ function fixComparisonClaim(answer, groqRows) {
 // depth-arithmetic issues would get silently hijacked into reporting on
 // whichever one wins an essentially random tie-break, ignoring the actual
 // question and the number the reader asked about. Found via a held-out test.
+//
+// Also skipped entirely for a comparison question (isComparisonQuestion,
+// above), even one that clearly names the matched station -- see that
+// function's comment for the second held-out finding this covers.
 function applyDepthInconsistencyOverride(answer, question, depthChecks) {
   if (depthChecks.length === 0) return
+  if (isComparisonQuestion(question)) return
   let check = depthChecks[0]
   if (depthChecks.length > 1) {
     check = depthChecks.reduce((best, c) => (tokenOverlap(question, c.station) > tokenOverlap(question, best.station) ? c : best))
