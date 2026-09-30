@@ -6,3 +6,4 @@ eval/paper-text/
 eval/eval-run.log
 
 .vercel
+*.mp4
