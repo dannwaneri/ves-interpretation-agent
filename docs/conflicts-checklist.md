@@ -1,6 +1,6 @@
 # Conflicts checklist (Phase 6)
 
-All 11 conflicts Sanity Context has found and resolved while building the
+All 14 conflicts Sanity Context has found and resolved while building the
 VES Interpretation Knowledge Base. The first 7 were pulled from Context →
 VES Interpretation KB → Issues → Resolved, on 2026-09-26. An 8th (#8 below)
 surfaced from a routine Context re-scan on 2026-09-28, before any Phase 8
@@ -8,12 +8,16 @@ change. #9-#11 surfaced after the Phase 8 purpose text was applied and the
 KB rebuilt (this rebuild regenerated the entries with a new structure,
 including a new `normalcy_verdicts` entry, which introduced its own fresh
 errors, the same category of adjacent-station data bleed as #5/#6, just in
-newly generated content). Each one is marked **REAL** (a genuine error in
-the published paper) or **ARTIFACT** (Context flagged something that isn't
-actually a problem, including its own generation errors, which are real
-bugs but not paper errors).
+newly generated content). #12-#14 surfaced across two further rebuilds on
+2026-09-30, triggered while resolving the issue immediately before each:
+resolving one issue's standing instruction changed what the next rebuild
+generated enough to surface a fresh Issue, three times in a row, before a
+final rebuild came back clean (0 pending). Each one is marked **REAL** (a
+genuine error in the published paper) or **ARTIFACT** (Context flagged
+something that isn't actually a problem, including its own generation
+errors, which are real bugs but not paper errors).
 
-All 11 verified below against the actual extracted PDF text (`eval/paper-text/*.txt`) and/or live `groq_query` against the dataset, on 2026-09-28.
+All 14 verified below against the actual extracted PDF text (`eval/paper-text/*.txt`) and/or live `groq_query` against the dataset, on 2026-09-28 (#1-11) and 2026-09-30 (#12-14).
 
 - [x] **1. REAL**, PDF-verified
 - [x] **2. REAL**, PDF-verified
@@ -26,6 +30,9 @@ All 11 verified below against the actual extracted PDF text (`eval/paper-text/*.
 - [x] **9. ARTIFACT**, KB-generation bug, confirmed against PDF
 - [x] **10. ARTIFACT**, KB-generation bug, confirmed against PDF
 - [x] **11. ARTIFACT**, KB-generation gap, confirmed against PDF
+- [x] **12. REAL**, PDF-verified (same fact as #1, re-surfaced)
+- [x] **13. REAL**, PDF-verified (Etche Odufor curve-type mislabel, first time Context caught this one)
+- [x] **14. ARTIFACT**, KB-generation bug, confirmed against PDF
 
 ---
 
@@ -218,11 +225,53 @@ Not a value disagreement; `normalcy_verdicts` simply failed to extract Choba's n
 
 ---
 
+## 12. Kenpoly Sec School Field, 3706 Ω·m: the Bori swap, re-surfaced a third time
+
+**Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
+
+> The Bori group-a entry states Kenpoly Sec School Field has aquifer resistivity 3706 Ω·m (from Figure 2 panel b), but the Bori group-b entry and the swapped-labels entry indicate that the paper's Table 1 summary table incorrectly assigns this value to the BMGS Bori Field row due to swapped labels.
+
+Both cited entries actually agree that 3706 Ω·m belongs to Kenpoly Sec School Field; there is no real disagreement in value here, only an explanation of why the p.7 table mislabels it. Same underlying fact as #1/#3/#8, surfaced again by a later rebuild.
+
+**PDF verification: REAL** (same fact as #1). `eval/paper-text/bori.txt`'s p.3 coordinate table gives Kenpoly Sec School Field's true coordinates as `7.37207889 4.665453` and BMGS Bori Field's as `7.36096 4.67842`. The p.7 summary table's row printed "BMGS bori field" (`7.37207889 4.665453 3706 59.3 32.2`) carries Kenpoly's own coordinates exactly, confirming that row's data (3706 Ω·m, 59.3 m depth, 32.2 m thickness) truly belongs to Kenpoly Sec School Field, not BMGS. The row printed "Kenpoly sec school field" (`7.36096 4.67842 2950 66.5 36.2`) carries BMGS's own coordinates exactly, confirming that row's data (2950 Ω·m, 66.5 m depth, 36.2 m thickness) truly belongs to BMGS. This is the same p.7 label swap as #1, confirmed by coordinate matching rather than assumed.
+
+**Resolution:** Kept 3706 Ω·m for Kenpoly Sec School Field.
+
+---
+
+## 13. Etche Odufor: Context catches the curve-type mislabel for the first time
+
+**Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
+
+> The Etche station entry lists Odufor as A-type in its summary table, but the Curve-Type Classification Reference and source-error entries document that Odufor's layer data show a dip at layer 4, contradicting the A-type definition and making the correct classification unclassified.
+
+The "Odufor is A-type" claim is itself sourced from the wrong stations' reading documents (`reading-etche-akpoku`, `reading-etche-ndashi`, `reading-etche-okehi`, `reading-etche-umuokom`, `reading-etche-ulakwo`, none of them Odufor's own reading), the same category of KB-generation content bleed as #5/#6/#9/#14. The competing claim, correctly sourced from `reading-etche-odufor` itself, is the one that matches the paper.
+
+**PDF verification: REAL.** `eval/paper-text/etche.txt` Table 5 (Odufor): layer 1: 20.320, layer 2: 851.16, layer 3: 2511.9, layer 4: 1345.0 Ω·m. Layer 4 (1345.0) is lower than layer 3 (2511.9), a non-monotonic dip, exactly as this Issue cites. This is Real error #3 from Table B below (Etche Odufor's curve-type mislabel), previously caught only by `agent/curveType.js` and never raised as a Context Issue until this rebuild. Table B's "Found by" column for this error is updated accordingly.
+
+**Resolution:** Kept "unclassified" for Odufor (non-monotonic; does not meet the A-type definition).
+
+---
+
+## 14. BMGS Bori Field thickness: another adjacent-station bleed, not a paper error
+
+**Scope:** Whole knowledge base | **Kind:** Conflict | **Severity:** Critical
+
+> The High-Resistivity Bori Stations entry reports BMGS-Bori-Field aquifer thickness as 36.8 m, while the Aquifer Resistivity Normalcy Verdicts entry lists it as 36.2 m.
+
+The 36.8 m claim is sourced from a "High-Resistivity Bori Stations" entry citing eight different stations' reading documents at once (Kenpoly Convocation Arena, BMGS Bori Field, Bank-road, Gokana-street, Tigidam-street, Monokpo-street, Kor-road, Maakoro-street), not cleanly isolated to BMGS's own reading, the same fingerprint as #5/#6/#9: a value bleeding in from an adjacent station during entry generation.
+
+**PDF verification: ARTIFACT.** Per #12's coordinate-matched resolution, BMGS Bori Field's true p.7 row (matched by its own p.3 coordinates, `7.36096 4.67842`) reports thickness 36.2 m. Confirmed independently live: the online agent's own `reportedAquiferThicknessM` for `reading-bori-bmgs-bori-field` prints 36.2 m in the real, unedited CLI output used for this project's demo recording. 36.8 m matches nothing in BMGS's own data; it is a KB-generation artifact, not a paper error.
+
+**Resolution:** Kept 36.2 m for BMGS Bori Field.
+
+---
+
 ## Table A: every Context Issue, mapped
 
-11 Issues total. 4 of them (1, 2, 3, 8) map to a real error in the source
-papers; the other 7 are artifacts, most of them the Knowledge Base's own
-entry-generation bugs rather than anything wrong with the source papers.
+14 Issues total. 6 of them (1, 2, 3, 8, 12, 13) map to a real error in the
+source papers; the other 8 are artifacts, most of them the Knowledge Base's
+own entry-generation bugs rather than anything wrong with the source papers.
 
 | # | Station(s) | What's in question | Maps to | Verdict |
 |---|---|---|---|---|
@@ -237,6 +286,9 @@ entry-generation bugs rather than anything wrong with the source papers.
 | 9 | Bank-road | KB entry's own generated text had a copy-paste error (Kor-road's number bled in) | None (KB-generation bug) | **ARTIFACT** |
 | 10 | Kenpoly sec school field | Same station-name confusion as #4, in a freshly generated entry | None (KB-generation bug) | **ARTIFACT** |
 | 11 | Choba Lawn Tennis Field | Missing value in a new entry, not a conflicting one | None (KB-generation gap) | **ARTIFACT** |
+| 12 | Kenpoly Sec School Field | Same swap as #1/#3/#8, re-surfaced on a further rebuild | Real error #1 | **REAL** |
+| 13 | Etche Odufor | A-type label vs non-monotonic data, sourced from the wrong stations' readings | Real error #3 (Etche Odufor curve-type) | **REAL** |
+| 14 | BMGS Bori Field | 36.2 vs 36.8 m thickness, sourced from eight stations' readings at once | None (KB-generation bug) | **ARTIFACT** |
 
 ## Table B: every internal inconsistency in the papers
 
@@ -251,7 +303,7 @@ the raw layer numbers.
 |---|---|---|---|
 | 1 | Bori table swap: BMGS Bori Field / Kenpoly sec school field, p.7 Table 1 row labels swapped against the paper's own p.3 coordinate table | Menegbo et al. (2024), Bori | Context (Issues 1, 3, 8) |
 | 2 | Choba Lawn Tennis Field labeled A-type despite its own stated non-monotonic trend (l1<l2>l3<l4<l5) | Oghonyon et al. (2025), Table 5 / Discussion | Context (Issue 2) + Code |
-| 3 | Etche Odufor labeled A-type despite a non-monotonic layer sequence | Nwankwoala et al. (2022), Table 9 | Code only, not a Context Issue |
+| 3 | Etche Odufor labeled A-type despite a non-monotonic layer sequence | Nwankwoala et al. (2022), Table 9 | Context (Issue 13) + Code |
 | 4 | Etche Opiro labeled A-type despite a non-monotonic layer sequence | Nwankwoala et al. (2022), Table 9 | Code only, not a Context Issue |
 | 5 | Etche Egwi, layer 4: printed depth and thickness don't reconcile (~7.0 m gap) | Nwankwoala et al. (2022), Table 1 | Code only, not a Context Issue |
 | 6 | Etche Ulakwo, layers 2 and 3: printed depths don't reconcile (~1.3 m and ~11.0 m gaps) | Nwankwoala et al. (2022), Table 2 | Code only, not a Context Issue |
@@ -260,6 +312,6 @@ the raw layer numbers.
 | 9 | Etche Ndashi, layer 5: printed depth doesn't reconcile (~9.7 m gap) | Nwankwoala et al. (2022), Table 7 | Code only, not a Context Issue |
 | 10 | Etche Umuokom, layer 5: printed depth doesn't reconcile (~9.4 m gap) | Nwankwoala et al. (2022), Table 8 | Code only, not a Context Issue |
 
-**What this shows about Sanity Context's conflict detector, measured against this dataset:** of the 11 Issues it raised, 4 pointed to real errors; same-fact detection is what catches a case like the Bori swap, two structured entries stating different numbers for the same fact. Those 4 Issues cover 2 of the 10 internal inconsistencies that actually exist in the source papers (the Bori swap and the Choba mislabel). The other 8 (all 2 Etche curve-type mislabels and all 6 Etche depth-arithmetic cases) were never raised as Context Issues; they need a derived computation from raw numbers instead (is this sequence monotonic? does this layer's depth equal the prior depth plus its own thickness?), which is outside what a same-fact conflict detector checks for, so this project's own code-side checks catch them at query time. Same-fact detection and derived computation are two different kinds of check, each catching a different kind of issue; this dataset needed both.
+**What this shows about Sanity Context's conflict detector, measured against this dataset:** of the 14 Issues it raised, 6 pointed to real errors; same-fact detection is what catches a case like the Bori swap, two structured entries stating different numbers for the same fact. Those 6 Issues cover 3 of the 10 internal inconsistencies that actually exist in the source papers (the Bori swap, the Choba mislabel, and, as of a later rebuild, the Etche Odufor mislabel). The other 7 (Etche Opiro's curve-type mislabel and all 6 Etche depth-arithmetic cases) were never raised as Context Issues; they need a derived computation from raw numbers instead (is this sequence monotonic? does this layer's depth equal the prior depth plus its own thickness?), which is outside what a same-fact conflict detector checks for, so this project's own code-side checks catch them at query time. Same-fact detection and derived computation are two different kinds of check, each catching a different kind of issue; this dataset needed both. Worth noting too: Context's precision on this dataset improved across rebuilds, from 4/11 (36%) to 6/14 (43%), not because the detector changed, but because later rebuilds happened to regenerate content in a shape that surfaced a real error (#13) it had missed before.
 
-**Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. Issues 5, 6, 9, 10, and 11 in Table A are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent, which is itself a point in its favor even though none of them were real.
+**Pattern worth noting for the post:** every rebuild that regenerates entries (Phase 8's purpose-text change included) has a real chance of introducing fresh transcription/attribution bugs into the newly generated prose, independent of whether the underlying source PDFs or dataset have any error. Issues 5, 6, 9, 10, 11, and 14 in Table A are all this same failure mode, not paper errors. The Knowledge Base's own Issue detector is what caught all of them before they reached the agent, which is itself a point in its favor even though none of them were real. Resolving one issue's standing instruction also visibly triggered a fresh rebuild that surfaced the next issue, three times in a row (#12, #13, #14) before a rebuild finally came back with 0 pending; each round was checked against the PDFs the same way as every issue before it, not assumed clean.
