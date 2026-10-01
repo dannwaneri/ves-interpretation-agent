@@ -249,6 +249,8 @@ The "Odufor is A-type" claim is itself sourced from the wrong stations' reading 
 
 **PDF verification: REAL.** `eval/paper-text/etche.txt` Table 5 (Odufor): layer 1: 20.320, layer 2: 851.16, layer 3: 2511.9, layer 4: 1345.0 Ω·m. Layer 4 (1345.0) is lower than layer 3 (2511.9), a non-monotonic dip, exactly as this Issue cites. This is Real error #3 from Table B below (Etche Odufor's curve-type mislabel), previously caught only by `agent/curveType.js` and never raised as a Context Issue until this rebuild. Table B's "Found by" column for this error is updated accordingly.
 
+**Why this, and not Opiro too?** Checked live: `reading-etche-odufor` and `reading-etche-opiro` both carry an identical, pre-existing `transcriptionNote` field stating their own dip and "unclassified" status (confirmed via `groq_query`, 2026-10-01). Same-fact detection had equal structured material to work with for both stations from the start; nothing about Odufor's data made it more detectable. The entry Context generated on this specific rebuild only picked up Odufor's note. The current `source_errors/curve_type_mislabeling` entry (checked live, same date) correctly lists both Odufor and Opiro as unclassified, so this has since self-corrected on a later rebuild without a new Issue being raised for Opiro. This is a generation-coverage gap, not evidence that same-fact detection reasoned its way to one station and not the other.
+
 **Resolution:** Kept "unclassified" for Odufor (non-monotonic; does not meet the A-type definition).
 
 ---
